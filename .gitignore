@@ -1,0 +1,103 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.env
+.venv
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+notebooks/**/*.ipynb
+!notebooks/**/README.ipynb
+
+# Data files
+data/raw/*
+data/processed/*
+data/features/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/features/.gitkeep
+
+# Model files
+data/models/*
+!data/models/.gitkeep
+*.pkl
+*.joblib
+*.h5
+*.pt
+*.pth
+*.onnx
+
+# Logs
+logs/*
+!logs/.gitkeep
+*.log
+*.log.*
+
+# Airflow
+airflow/logs/*
+airflow/*.pid
+airflow/*.err
+airflow/*.out
+airflow/airflow.db
+airflow/airflow.cfg
+airflow/webserver_config.py
+airflow/airflow-webserver.pid
+
+# Configuration
+*.env
+config/*.local.yaml
+config/*.prod.yaml
+config/*.dev.yaml
+!config/*.example.yaml
+
+# Coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# Misc
+.pytest_cache/
+.mypy_cache/
+.pyre/
+.pytype/
+*.bak
+*.tmp
+*.temp
+.DS_Store
