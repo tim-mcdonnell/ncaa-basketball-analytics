@@ -20,7 +20,7 @@ This guide outlines best practices for writing clear, comprehensive task descrip
 - Use clear section headings that signal their purpose
 - Apply consistent formatting and visual hierarchy
 - Employ checklists and code blocks for clarity
-- Use emoji icons to distinguish different sections visually
+- Use emoji icons to distinguish different sections visually (🎯, 📐, 🧪, 📄, 🛠️, ✅)
 
 ### 3. Emphasize Verification
 - Include explicit testing requirements with specific test cases
@@ -42,12 +42,50 @@ This guide outlines best practices for writing clear, comprehensive task descrip
 - Objective: Specific outcome to achieve
 - Scope: Explicit boundaries of what should/shouldn't be implemented
 
+**Example:**
+```markdown
+## 🎯 Overview
+
+**Background:** Reliable data storage is critical for analytics pipeline integrity and model training.
+
+**Objective:** Implement DuckDB-based data storage component for NCAA basketball statistics.
+
+**Scope:** Create schema, data access layer, and validation, but NOT visualization or analytics.
+```
+
 ### 📐 Technical Requirements Section
 - Architecture requirements with specific file paths and naming conventions
 - Database schema with actual SQL statements
 - API endpoints with exact routes and response formats
 - Dependencies and external integrations
 - Performance and security considerations
+
+**Example:**
+```markdown
+## 📐 Technical Requirements
+
+### Database Schema
+
+```sql
+CREATE TABLE teams (
+    team_id VARCHAR PRIMARY KEY,
+    team_name VARCHAR NOT NULL,
+    conference VARCHAR,
+    division VARCHAR,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+### Repository Structure
+
+src/data/storage/
+├── __init__.py
+├── db.py            # Database connection management
+├── repository.py    # Repository pattern implementation
+├── schema.py        # Schema definitions
+└── validation.py    # Data validation functions
+```
 
 ### 🧪 Testing Framework Section
 - Test-Driven Development (TDD) approach with RED-GREEN-REFACTOR steps
@@ -56,17 +94,69 @@ This guide outlines best practices for writing clear, comprehensive task descrip
 - Integration testing requirements
 - Real-world data testing instructions
 
+**Example:**
+```markdown
+## 🧪 Testing Requirements
+
+### Test-Driven Development Process
+
+1. **RED Phase**:
+   - Write failing tests for schema validation
+   - Create tests for repository CRUD operations
+   - Develop tests for data validation functions
+
+2. **GREEN Phase**:
+   - Implement schema definitions that pass validation tests
+   - Build repository functions that satisfy CRUD tests
+   - Create validation functions that pass test cases
+
+3. **REFACTOR Phase**:
+   - Optimize database access patterns
+   - Enhance error handling
+   - Improve data validation efficiency
+
+### Test Cases
+
+- [ ] Test `test_team_schema_validation`: Verify team schema validates correctly
+- [ ] Test `test_create_team`: Verify team creation stores data correctly
+- [ ] Test `test_retrieve_team`: Verify team retrieval returns correct data
+- [ ] Test `test_update_team`: Verify team updates are stored correctly
+- [ ] Test `test_delete_team`: Verify team deletion removes data correctly
+```
+
 ### 📄 Documentation Requirements Section
 - Files to create or update
 - Required content for documentation
 - Code commenting standards
 - Examples or templates to follow
 
+**Example:**
+```markdown
+## 📄 Documentation Requirements
+
+- [ ] Create README.md in src/data/storage/ with module overview
+- [ ] Document schema design decisions in docs/architecture/data-storage.md
+- [ ] Add docstrings to all public functions with parameters and return types
+- [ ] Include usage examples for repository pattern in docs/guides/data-access.md
+```
+
 ### 🛠️ Implementation Process Section
 - Step-by-step workflow
 - Breakdown of implementation phases
 - Dependencies between steps
 - Verification checkpoints
+
+**Example:**
+```markdown
+## 🛠️ Implementation Process
+
+1. Implement database connection management
+2. Create schema definitions with validation
+3. Implement repository pattern base class
+4. Add specialized repositories for each entity
+5. Implement data validation functions
+6. Add integration tests with test database
+```
 
 ### ✅ Acceptance Criteria Section
 - Explicit list of requirements that must be met
@@ -75,12 +165,129 @@ This guide outlines best practices for writing clear, comprehensive task descrip
 - Documentation completeness
 - Code quality standards
 
+**Example:**
+```markdown
+## ✅ Acceptance Criteria
+
+- [ ] All specified tests pass
+- [ ] Database schema is created correctly
+- [ ] Repository pattern enables CRUD operations for all entities
+- [ ] Data validation prevents invalid data from being stored
+- [ ] Documentation is complete and accurate
+- [ ] Code passes linting with zero errors
+- [ ] Implementation follows project architecture guidelines
+```
+
+## Implementation Examples
+
+When providing implementation examples in tasks, keep them minimal and focused. Examples should illustrate the pattern or approach without implementing the full solution. They should be:
+
+1. Short and concise (generally <20 lines)
+2. Illustrative of important patterns
+3. Well-documented with comments
+4. Clear interfaces with type hints
+
+**Good Example - Repository Pattern:**
+```python
+from typing import Dict, List, Optional
+import duckdb
+from src.data.models import Team
+
+class TeamRepository:
+    """Repository for team data operations."""
+    
+    def __init__(self, db_path: str):
+        """Initialize with database path."""
+        self.db_path = db_path
+    
+    def get_by_id(self, team_id: str) -> Optional[Team]:
+        """Retrieve team by ID."""
+        # Implementation would go here
+        pass
+    
+    def create(self, team: Team) -> str:
+        """Create a new team record."""
+        # Implementation would go here
+        pass
+```
+
+**Bad Example - Too Detailed:**
+```python
+# Don't provide overly detailed implementation
+# with all edge cases and error handling
+# This is too much for a task description
+
+class TeamRepository:
+    def __init__(self, db_path: str):
+        self.conn = duckdb.connect(db_path)
+        self.conn.execute("""
+            CREATE TABLE IF NOT EXISTS teams (
+                team_id VARCHAR PRIMARY KEY,
+                team_name VARCHAR NOT NULL,
+                conference VARCHAR,
+                division VARCHAR,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        
+    def get_by_id(self, team_id: str) -> Optional[Team]:
+        try:
+            result = self.conn.execute(
+                "SELECT * FROM teams WHERE team_id = ?", 
+                [team_id]
+            ).fetchone()
+            if not result:
+                return None
+            return Team(
+                team_id=result[0],
+                team_name=result[1],
+                conference=result[2],
+                division=result[3]
+            )
+        except Exception as e:
+            logging.error(f"Error retrieving team: {e}")
+            raise RepositoryError(f"Failed to retrieve team: {e}")
+    
+    # More methods with full implementation...
+```
+
+## Test Case Format
+
+When writing test cases, provide clear names and descriptions that indicate what's being tested and the expected outcome. Use checkboxes to make them trackable.
+
+**Example Test Case Format:**
+```markdown
+- [ ] Test `test_team_schema_validation`: Verify team schema validates correctly
+```
+
+**Example Test Function (for illustration):**
+```python
+def test_team_schema_validation():
+    """Test that team schema validates correctly."""
+    # Arrange
+    valid_team = {
+        "team_id": "MICH", 
+        "team_name": "Michigan Wolverines"
+    }
+    invalid_team = {"team_name": "Michigan Wolverines"}
+    
+    # Act
+    valid_result = validate_team(valid_team)
+    invalid_result = validate_team(invalid_team)
+    
+    # Assert
+    assert valid_result.is_valid is True
+    assert invalid_result.is_valid is False
+    assert "team_id" in invalid_result.errors
+```
+
 ## Task Template Structure
 
 ```markdown
 # Task: [Descriptive Title]
 
-## 📋 Overview
+## 🎯 Overview
 **Background:** [Context and why this matters]
 **Objective:** [Specific goal to accomplish]
 **Scope:** [Clear boundaries of the task]
@@ -106,14 +313,14 @@ CREATE TABLE example (
 - Request/Response format: [Provide exact format]
 
 ## 🧪 Testing Requirements
+### Test-Driven Development Process
+1. **RED Phase**: [Describe tests to write first]
+2. **GREEN Phase**: [Describe implementation to make tests pass]
+3. **REFACTOR Phase**: [Describe optimization and cleanup]
+
 ### Test Cases
 - [ ] Test `test_name_1`: [Description of test case]
 - [ ] Test `test_name_2`: [Description of test case]
-
-### TDD Process
-1. **RED**: Write failing tests first
-2. **GREEN**: Implement minimum code to pass tests
-3. **REFACTOR**: Clean up code while maintaining passing tests
 
 ### Real-World Testing
 - Run: `[Exact command to execute]`
@@ -159,6 +366,10 @@ CREATE TABLE example (
 1. Data is retrieved without errors
 2. The database file contains the expected number of records
 3. The console output matches the expected format"
+
+### ❌ Overly Detailed Implementation
+**Poor:** Providing 50+ lines of code with all error handling and edge cases.
+**Better:** Providing a 10-15 line example that illustrates the pattern with key interfaces.
 
 ## Implementation Verification Checklist
 

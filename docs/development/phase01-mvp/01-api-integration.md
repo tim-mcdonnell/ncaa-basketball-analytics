@@ -1,17 +1,23 @@
 ---
 title: ESPN API Integration
-description: Technical specification for ESPN API integration in Phase 1 MVP
+description: Technical specification for ESPN API integration in Phase 01 MVP
 ---
 
 # ESPN API Integration
 
-This document provides technical details for implementing the ESPN API integration component of Phase 1 MVP.
+This document provides technical details for implementing the ESPN API integration component of Phase 01 MVP.
 
-## Overview
+## 🎯 Overview
 
-The ESPN API integration component will establish a reliable data collection framework from ESPN's public and authenticated APIs, focusing on college basketball data. The component will handle authentication, rate limiting, error handling, and data validation, using asynchronous processing for efficient data collection.
+**Background:** The project requires reliable NCAA basketball data collection to power all downstream analytics and predictions.
 
-## Architecture
+**Objective:** Establish a reliable data collection framework from ESPN's public and authenticated APIs, focusing on college basketball data.
+
+**Scope:** This component will handle authentication, rate limiting, error handling, data validation, and use asynchronous processing for efficient data collection.
+
+## 📐 Technical Requirements
+
+### Architecture
 
 ```
 src/
@@ -33,8 +39,6 @@ src/
             ├── game.py
             └── player.py
 ```
-
-## Technical Requirements
 
 ### Asynchronous API Client
 
@@ -104,14 +108,95 @@ src/
    - Batch related requests when possible
    - Group requests by endpoint type for better concurrency management
 
-### Testing Requirements
+## 🧪 Testing Requirements
 
-1. Mock ESPN API responses for all endpoints
-2. Test adaptive rate limiting behavior
-3. Test error handling and retries with exponential backoff
-4. Test concurrent request management
-5. Test data validation for various API response scenarios
-6. Test incremental data collection logic
+### Test-Driven Development Process
+
+1. **RED Phase**:
+   - Write failing tests for each client component before implementation
+   - Create mock ESPN API responses for testing
+   - Establish endpoint test coverage requirements
+
+2. **GREEN Phase**:
+   - Implement minimum code to pass tests
+   - Ensure each component passes its unit tests
+   - Integration tests verify components work together
+
+3. **REFACTOR Phase**:
+   - Optimize code while keeping tests passing
+   - Improve error handling and edge cases
+   - Enhance performance where possible
+
+### Test Cases
+
+- [ ] Test `test_base_client_initialization`: Verify client initializes with correct configuration
+- [ ] Test `test_rate_limiter_throttling`: Verify rate limiter reduces concurrency when limits detected
+- [ ] Test `test_exponential_backoff`: Verify retry mechanism applies correct backoff
+- [ ] Test `test_team_endpoint_retrieval`: Verify teams endpoint returns expected data
+- [ ] Test `test_games_endpoint_filtering`: Verify games endpoint filters correctly
+- [ ] Test `test_players_endpoint_by_team`: Verify player roster retrieval by team
+- [ ] Test `test_error_handling`: Verify client handles API errors gracefully
+- [ ] Test `test_incremental_updates`: Verify client correctly handles incremental updates
+
+### Mock API Testing
+
+Create mock ESPN API responses in `tests/data/api/responses/` for:
+- Team listings with complete hierarchy
+- Game schedules with different statuses
+- Player statistics with various edge cases
+- Error responses and rate limiting scenarios
+
+### Real-World Testing
+
+- Run: `python -m src.data.api.scripts.fetch_teams`
+- Verify: Client successfully retrieves team data without errors
+
+- Run: `python -m src.data.api.scripts.fetch_games --start-date 2023-11-01 --end-date 2023-11-30`
+- Verify:
+  1. All games in the date range are retrieved
+  2. Game data includes expected fields
+  3. No rate limiting errors occur
+
+## 📄 Documentation Requirements
+
+- [ ] Update API client usage examples in `docs/guides/api-usage.md`
+- [ ] Document ESPN API endpoints and limitations in `docs/architecture/data-sources.md`
+- [ ] Add detailed code documentation for all public methods
+- [ ] Create sequence diagrams showing client operation in `docs/architecture/api-flow.md`
+
+### Code Documentation Standards
+
+- All public methods must have docstrings with:
+  - Description of functionality
+  - Parameter descriptions and types
+  - Return value description and type
+  - Exception information
+
+## 🛠️ Implementation Process
+
+1. Set up project structure and test framework for API client
+2. Implement and test base async client with rate limiting (without ESPN specifics)
+3. Implement and test retry logic with exponential backoff
+4. Implement and test ESPN-specific client implementation
+5. Implement and test teams endpoint with concurrent fetching
+6. Implement and test games endpoint with filtering
+7. Implement and test players endpoint
+8. Add incremental data collection logic
+9. Integrate with logging framework
+10. Performance optimization and concurrent request tuning
+
+## ✅ Acceptance Criteria
+
+- [ ] All specified tests pass, including integration tests
+- [ ] Client can retrieve all required data types from ESPN API
+- [ ] Rate limiting effectively prevents API request failures
+- [ ] Concurrent requests optimize data collection speed
+- [ ] Error handling gracefully manages API failures
+- [ ] Response data is correctly validated and transformed
+- [ ] Incremental updates work correctly
+- [ ] Documentation is complete and accurate
+- [ ] Code meets project quality standards (passes linting and typing)
+- [ ] Real-world testing demonstrates reliable operation
 
 ## Usage Examples
 
@@ -187,41 +272,29 @@ class AdaptiveRateLimiter:
                     self._decrease_concurrency()
 ```
 
-## Implementation Approach
-
-1. First implement and test the async base API client with adaptive rate limiting
-2. Implement and test the retry mechanism using tenacity
-3. Next implement the teams endpoint with concurrent fetching
-4. Then implement the games endpoint with appropriate filtering
-5. Finally implement the players endpoint
-6. Add incremental data collection logic with proper concurrency control
-
 ## Integration with Airflow
 
-The API client will be integrated with Airflow through a PythonOperator:
+The API client will be integrated with Airflow DAGs for scheduled data collection:
 
-```python
-def run_async_espn_collection():
-    import asyncio
-    from src.data.api.espn_client import AsyncESPNClient
-    from src.data.storage.repositories.raw.team_repo import RawTeamRepository
-    
-    async def fetch_and_store():
-        async with AsyncESPNClient() as client:
-            teams = await client.get_teams()
-            # Store in database
-            # ...
-    
-    # Run async collection within Airflow task
-    asyncio.run(fetch_and_store())
+1. Separate DAG for different data collection tasks
+2. Task-specific error handling and notifications
+3. Incremental data collection scheduling
+4. Metrics collection for monitoring
 
-# In DAG definition
-collect_espn_data = PythonOperator(
-    task_id='collect_espn_data',
-    python_callable=run_async_espn_collection,
-    # ...
-)
-```
+## Architecture Alignment
+
+This API integration implementation aligns with the specifications in the architecture documentation:
+
+1. Uses aiohttp for asynchronous API requests as specified in tech-stack.md
+2. Implements adaptive rate limiting and concurrency control as outlined
+3. Uses tenacity for retry mechanisms with exponential backoff
+4. Follows the project structure for API client organization
+5. Supports the data flow into the raw layer of the medallion architecture
+6. Implements proper validation for API responses
+
+## Implementation Timeline
+
+The API integration component should be implemented early in the Phase 1 development cycle, as it provides the data foundation for all downstream components.
 
 ## Integration Points
 

@@ -42,6 +42,93 @@ ncaa-basketball-analytics/
 - **ML Frameworks**: PyTorch, MLflow
 - **Visualization**: Plotly Dash
 
+## TDD Process Structure
+
+All development must follow this Test-Driven Development process:
+
+### 1. RED Phase
+- Write failing tests first
+- Tests should clearly define expected behavior
+- Commit these tests before implementation
+
+### 2. GREEN Phase
+- Implement minimal code to make tests pass
+- Focus on functionality, not optimization
+- Ensure all tests pass consistently
+
+### 3. REFACTOR Phase
+- Clean up and optimize the implementation
+- Maintain passing tests throughout refactoring
+- Improve code quality, performance, and readability
+
+Example:
+```python
+# 1. RED: Write the test first
+def test_team_repository_get_by_id():
+    """Test retrieving a team by ID."""
+    # Arrange
+    repo = TeamRepository(":memory:")
+    team_id = "MICH"
+    
+    # Act
+    result = repo.get_by_id(team_id)
+    
+    # Assert
+    assert result is not None
+    assert result.team_id == team_id
+
+# 2. GREEN: Implement code to make the test pass
+# 3. REFACTOR: Optimize while keeping tests passing
+```
+
+## Documentation Structure
+
+Each task should include these standard sections with emoji markers:
+
+- 🎯 **Overview**: Background, objective, and scope
+- 📐 **Technical Requirements**: Architecture, schema, API design
+- 🧪 **Testing Requirements**: TDD process, test cases, verification
+- 📄 **Documentation Requirements**: Files to update, content to add
+- 🛠️ **Implementation Process**: Step-by-step workflow
+- ✅ **Acceptance Criteria**: Requirements for completion
+
+## Structured Test Cases
+
+Format test cases with checkboxes and clear descriptions:
+
+```markdown
+### Test Cases
+
+- [ ] Test `test_team_schema_validation`: Verify team schema validates correctly
+- [ ] Test `test_create_team`: Verify team creation stores data correctly
+- [ ] Test `test_retrieve_team`: Verify team retrieval returns correct data
+```
+
+## Implementation Examples
+
+When providing example code:
+
+1. Keep examples minimal (<20 lines)
+2. Focus on API/interfaces, not full implementations
+3. Include type hints and docstrings
+4. Use placeholder comments for implementation details
+
+Good example:
+```python
+def get_team_by_id(team_id: str) -> Optional[Team]:
+    """
+    Retrieve team by ID from the database.
+    
+    Args:
+        team_id: Unique team identifier
+        
+    Returns:
+        Team object if found, None otherwise
+    """
+    # Implementation would go here
+    pass
+```
+
 ## Development Workflow
 
 1. **Write failing tests** for the feature you're implementing
@@ -67,6 +154,8 @@ ncaa-basketball-analytics/
 - Document all non-trivial code
 - Adhere to the project's modular structure
 - Use type annotations
+- Format tasks with standard emoji section markers
+- Provide structured acceptance criteria with checkboxes
 
 ### ❌ Don't
 
@@ -76,6 +165,8 @@ ncaa-basketball-analytics/
 - Create root-level directories
 - Bypass linting or pre-commit hooks
 - Implement hard-coded values (use configuration)
+- Write overly detailed implementation examples
+- Implement features without clear acceptance criteria
 
 ## Common Operations
 
@@ -131,6 +222,21 @@ This applies only to terminal commands. Multi-line edits in files work normally.
 - Access database: Use DuckDB with Polars for querying
 - Features: Access via feature registry in `src/features/registry.py`
 - Configuration: Load from YAML files in `config/` directory using Pydantic
+
+## Acceptance Criteria Pattern
+
+Always structure acceptance criteria with checkboxes:
+
+```markdown
+## ✅ Acceptance Criteria
+
+- [ ] All specified tests pass, including integration tests
+- [ ] Database schema is correctly implemented
+- [ ] Repository pattern enables all required data operations
+- [ ] Error handling correctly manages failure cases
+- [ ] Documentation is complete and accurate
+- [ ] Code passes all linting and type checking
+```
 
 ## Feature Implementation Checklist
 
