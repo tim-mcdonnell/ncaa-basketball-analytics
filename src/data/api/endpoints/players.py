@@ -4,12 +4,14 @@ import asyncio
 
 from src.data.api.espn_client import AsyncESPNClient
 from src.data.api.models.player import Player, PlayerList
+from src.data.api.exceptions import APIError, ResourceNotFoundError, ParseError
 
 logger = logging.getLogger(__name__)
 
 async def get_team_players(
     team_id: str,
-    client: Optional[AsyncESPNClient] = None
+    client: Optional[AsyncESPNClient] = None,
+    incremental: bool = False
 ) -> List[Player]:
     """
     Get players for a specific team.
@@ -17,9 +19,14 @@ async def get_team_players(
     Args:
         team_id: Team ID
         client: Optional AsyncESPNClient instance
+        incremental: Whether to use incremental updates
         
     Returns:
         List of Player objects
+        
+    Raises:
+        ResourceNotFoundError: If team not found
+        APIError: If API request fails
     """
     # Create client if not provided
     should_close = False
@@ -49,14 +56,22 @@ async def get_team_players(
                 except Exception as e:
                     logger.warning(f"Failed to parse player: {e}")
             
+            logger.info(f"Successfully retrieved {len(players)} players for team {team_id}")
             return players
-    except Exception as e:
+    except ResourceNotFoundError:
+        logger.error(f"Team {team_id} not found")
+        raise
+    except APIError as e:
         logger.error(f"Failed to get players for team {team_id}: {e}")
         raise
+    except Exception as e:
+        logger.error(f"Unexpected error getting players for team {team_id}: {e}")
+        raise APIError(f"Unexpected error: {str(e)}")
 
 async def get_players_batch(
     team_ids: List[str],
-    client: Optional[AsyncESPNClient] = None
+    client: Optional[AsyncESPNClient] = None,
+    incremental: bool = False
 ) -> Dict[str, List[Player]]:
     """
     Get players for multiple teams concurrently.
@@ -64,9 +79,13 @@ async def get_players_batch(
     Args:
         team_ids: List of team IDs
         client: Optional AsyncESPNClient instance
+        incremental: Whether to use incremental updates
         
     Returns:
         Dictionary mapping team IDs to lists of Player objects
+        
+    Raises:
+        APIError: If API request fails
     """
     # Create client if not provided
     should_close = False
@@ -77,21 +96,29 @@ async def get_players_batch(
     try:
         async with client if should_close else asyncio.nullcontext():
             # Create tasks for getting players for each team
-            tasks = {team_id: get_team_players(team_id, client) for team_id in team_ids}
+            tasks = {team_id: get_team_players(team_id, client, incremental) for team_id in team_ids}
             
             # Execute tasks concurrently
             results = {}
             for team_id, task in tasks.items():
                 try:
                     results[team_id] = await task
+                except ResourceNotFoundError:
+                    logger.warning(f"Team {team_id} not found")
+                    results[team_id] = []
                 except Exception as e:
                     logger.error(f"Failed to get players for team {team_id}: {e}")
                     results[team_id] = []
             
+            # Log stats
+            successful_teams = sum(1 for players in results.values() if players)
+            total_players = sum(len(players) for players in results.values())
+            logger.info(f"Successfully retrieved players for {successful_teams} of {len(team_ids)} teams ({total_players} total players)")
+            
             return results
     except Exception as e:
         logger.error(f"Failed to get players batch: {e}")
-        raise
+        raise APIError(f"Batch player retrieval failed: {str(e)}")
 
 async def get_player_stats(
     player_id: str,
@@ -111,6 +138,10 @@ async def get_player_stats(
         
     Returns:
         Dictionary of player statistics
+        
+    Raises:
+        ResourceNotFoundError: If player not found
+        APIError: If API request fails
     """
     # This would be implemented once the ESPN client supports this endpoint
     # For now, we'll return a placeholder

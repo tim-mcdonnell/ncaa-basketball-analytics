@@ -4,18 +4,26 @@ import asyncio
 
 from src.data.api.espn_client import AsyncESPNClient
 from src.data.api.models.team import Team, TeamList, TeamRecord
+from src.data.api.exceptions import APIError, ResourceNotFoundError, ParseError
 
 logger = logging.getLogger(__name__)
 
-async def get_all_teams(client: Optional[AsyncESPNClient] = None) -> List[Team]:
+async def get_all_teams(
+    client: Optional[AsyncESPNClient] = None,
+    incremental: bool = False
+) -> List[Team]:
     """
     Get all NCAA basketball teams.
     
     Args:
         client: Optional AsyncESPNClient instance
+        incremental: Whether to use incremental updates
         
     Returns:
         List of Team objects
+        
+    Raises:
+        APIError: If API request fails
     """
     # Create client if not provided
     should_close = False
@@ -41,10 +49,14 @@ async def get_all_teams(client: Optional[AsyncESPNClient] = None) -> List[Team]:
                 except Exception as e:
                     logger.warning(f"Failed to parse team: {e}")
             
+            logger.info(f"Successfully retrieved {len(teams)} teams")
             return teams
-    except Exception as e:
+    except APIError as e:
         logger.error(f"Failed to get teams: {e}")
         raise
+    except Exception as e:
+        logger.error(f"Unexpected error getting teams: {e}")
+        raise APIError(f"Unexpected error: {str(e)}")
 
 async def get_team_details(team_id: str, client: Optional[AsyncESPNClient] = None) -> Team:
     """
@@ -56,6 +68,10 @@ async def get_team_details(team_id: str, client: Optional[AsyncESPNClient] = Non
         
     Returns:
         Team object with details
+        
+    Raises:
+        ResourceNotFoundError: If team not found
+        APIError: If API request fails
     """
     # Create client if not provided
     should_close = False
@@ -94,10 +110,17 @@ async def get_team_details(team_id: str, client: Optional[AsyncESPNClient] = Non
                 )
             )
             
+            logger.info(f"Successfully retrieved details for team {team_id}: {team.name}")
             return team
-    except Exception as e:
+    except ResourceNotFoundError:
+        logger.error(f"Team {team_id} not found")
+        raise
+    except APIError as e:
         logger.error(f"Failed to get team details for {team_id}: {e}")
         raise
+    except Exception as e:
+        logger.error(f"Unexpected error getting team details for {team_id}: {e}")
+        raise APIError(f"Unexpected error: {str(e)}")
 
 async def get_teams_batch(team_ids: List[str], client: Optional[AsyncESPNClient] = None) -> List[Team]:
     """
@@ -109,6 +132,9 @@ async def get_teams_batch(team_ids: List[str], client: Optional[AsyncESPNClient]
         
     Returns:
         List of Team objects
+        
+    Raises:
+        APIError: If API request fails
     """
     # Create client if not provided
     should_close = False
@@ -126,13 +152,18 @@ async def get_teams_batch(team_ids: List[str], client: Optional[AsyncESPNClient]
             
             # Filter out exceptions
             valid_teams = []
-            for i, team in enumerate(teams):
-                if isinstance(team, Exception):
-                    logger.error(f"Failed to get team {team_ids[i]}: {team}")
+            for i, result in enumerate(teams):
+                if isinstance(result, Exception):
+                    team_id = team_ids[i]
+                    if isinstance(result, ResourceNotFoundError):
+                        logger.warning(f"Team {team_id} not found")
+                    else:
+                        logger.error(f"Failed to get team {team_id}: {result}")
                 else:
-                    valid_teams.append(team)
+                    valid_teams.append(result)
             
+            logger.info(f"Successfully retrieved {len(valid_teams)} of {len(team_ids)} teams in batch")
             return valid_teams
     except Exception as e:
         logger.error(f"Failed to get teams batch: {e}")
-        raise 
+        raise APIError(f"Batch team retrieval failed: {str(e)}") 
