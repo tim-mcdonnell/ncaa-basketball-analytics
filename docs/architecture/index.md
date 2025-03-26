@@ -1,6 +1,6 @@
 # Architecture Overview
 
-This section provides comprehensive documentation on the architecture of the NCAA Basketball Analytics system. It covers the technical design, component structure, and implementation details to guide developers in understanding and extending the system.
+This document provides a high-level overview of the NCAA Basketball Analytics system architecture. It introduces key principles, main components, and documentation organization to help developers understand the system design.
 
 ## Key Principles
 
@@ -52,6 +52,7 @@ Each architectural component has detailed documentation accessible through the n
 - [Feature Engineering](feature-engineering.md): Framework for creating and managing features
 - [Logging Strategy](logging-strategy.md): Approach to system logging and monitoring
 - [Model Training](model-training.md): Machine learning model development workflow
+- [Development Phases](development-phases.md): Phased approach to project implementation and task management
 
 ## Getting Started
 
@@ -62,53 +63,10 @@ For new developers, we recommend the following reading order:
 3. **[Data Table Structures](data-table-structures.md)**: To learn about our data model
 4. **[Feature Engineering](feature-engineering.md)**: To understand how we process data for models
 5. **[Model Training](model-training.md)**: To learn how prediction models are built
+6. **[Development Phases](development-phases.md)**: To understand the project roadmap and how to contribute
 
 !!! tip "Development Guidelines"
     These architecture documents provide guidance rather than strict prescriptions. Developers are encouraged to use their judgment in implementation details while adhering to the overall architecture principles.
-
-## Documentation Tooling
-
-This documentation is built using [MkDocs Material](https://squidfunk.github.io/mkdocs-material/), a modern documentation site generator. Key features include:
-
-- **Navigation**: Hierarchical navigation menu with expandable sections
-- **Search**: Full-text search across all documentation
-- **Diagrams**: Mermaid.js integration for flowcharts and diagrams
-- **Code Highlighting**: Syntax highlighting for code examples
-- **Admonitions**: Callout blocks for tips, warnings, and notes
-
-### MkDocs Setup
-
-The documentation is configured in `mkdocs.yml` at the project root:
-
-```yaml
-site_name: NCAA Basketball Analytics
-theme:
-  name: material
-  features:
-    - navigation.instant
-    - navigation.tracking
-    - navigation.expand
-    - navigation.indexes
-    - navigation.top
-    - search.highlight
-    - search.suggest
-  palette:
-    primary: indigo
-    accent: indigo
-markdown_extensions:
-  - pymdownx.highlight
-  - pymdownx.superfences:
-      custom_fences:
-        - name: mermaid
-          class: mermaid
-          format: !!python/name:pymdownx.superfences.fence_code_format
-  - admonition
-  - pymdownx.details
-  - pymdownx.tabbed
-  - pymdownx.tasklist
-plugins:
-  - search
-```
 
 ## Architecture Evolution
 

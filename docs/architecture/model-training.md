@@ -84,22 +84,6 @@ The project uses multiple model types depending on the prediction task:
 - **Primary Model**: LightGBM regressor
 - **Alternative Model**: PyTorch MLP regressor
 
-!!! example "Model Configuration"
-    ```python
-    # Example configuration for a game prediction model
-    model_config = {
-        'objective': 'binary',
-        'metric': 'binary_logloss',
-        'boosting_type': 'gbdt',
-        'num_leaves': 31,
-        'learning_rate': 0.05,
-        'feature_fraction': 0.9,
-        'bagging_fraction': 0.8,
-        'bagging_freq': 5,
-        'verbose': -1
-    }
-    ```
-
 ## Training Pipeline
 
 The training pipeline is implemented using MLflow and Airflow:
@@ -182,13 +166,3 @@ The model training architecture focuses on principles rather than prescribing sp
 
 !!! note "Implementation Freedom"
     This document provides guidance on the model training architecture. Developers have flexibility in specific implementation details as long as they adhere to the overall architecture and evaluation requirements.
-
-## Implementation Examples
-
-The model training infrastructure is implemented in the following files:
-
-- `src/models/preprocessing.py`: Data preparation utilities
-- `src/models/training.py`: Model training functions
-- `src/models/evaluation.py`: Evaluation metrics and reporting
-- `src/models/prediction.py`: Inference and prediction generation
-- `airflow/dags/model_training/`: Airflow DAGs for model training

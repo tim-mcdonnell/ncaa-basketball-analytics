@@ -8,6 +8,11 @@ This section provides practical guides for working with the NCAA Basketball Anal
 - [Adding Features](adding-features.md): Guide to implementing new features in the system
 - [Training Models](training-models.md): Guide to training and evaluating prediction models
 
+## Development Processes
+
+- [Task Writing Guide](processes/task-writing-guide.md): Guidelines for creating effective tasks for AI coding agents
+- [AI Agent Cheat Sheet](processes/ai-agent-cheatsheet.md): Quick reference for AI coding agents working on this project
+
 ## Common Tasks
 
 ### Development Setup
@@ -28,6 +33,15 @@ When implementing new features:
 3. Write tests that validate the feature behavior
 4. Implement the feature code
 5. Submit a pull request with comprehensive documentation
+
+### Task Creation
+
+When creating tasks for development:
+
+1. Use the [Task Writing Guide](processes/task-writing-guide.md) to structure task descriptions
+2. Ensure tasks align with the [Development Phases](../architecture/development-phases.md)
+3. Create clear acceptance criteria and verification steps
+4. Include references to relevant architecture documentation
 
 ### Data Pipeline Debugging
 

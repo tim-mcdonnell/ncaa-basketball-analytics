@@ -53,7 +53,7 @@ config/
 └── model_config.yaml         # Model training configurations
 ```
 
-These configurations are validated using Pydantic models defined in `src/config/settings.py`.
+Configuration files use a consistent structure and are validated using Pydantic models.
 
 ### `data/`
 
@@ -78,8 +78,6 @@ docs/
 └── api/                      # API documentation
 ```
 
-Documentation is built using MkDocs Material, providing searchable and navigable documentation.
-
 ### `src/`
 
 Contains all source code for the project, organized by functionality:
@@ -94,77 +92,14 @@ src/
 └── visualization/            # Visualization code
 ```
 
-#### `src/api/`
+Each subdirectory in `src/` represents a logical component of the system:
 
-API client implementation for fetching data from ESPN:
-
-```
-src/api/
-├── __init__.py
-├── client.py                 # API client
-└── schemas.py                # API response schemas
-```
-
-#### `src/config/`
-
-Configuration management using Pydantic for validation:
-
-```
-src/config/
-├── __init__.py
-└── settings.py               # Pydantic models for config validation
-```
-
-#### `src/data/`
-
-Data processing pipelines:
-
-```
-src/data/
-├── __init__.py
-├── ingestion.py              # Data ingestion from API
-├── transformation.py         # Data transformation
-└── storage.py                # Database interactions
-```
-
-#### `src/features/`
-
-Feature engineering framework:
-
-```
-src/features/
-├── __init__.py
-├── base.py                   # Base feature class
-├── registry.py               # Feature registry
-├── team_features.py          # Team-level features
-├── player_features.py        # Player-level features
-├── game_features.py          # Game-level features
-└── temporal_features.py      # Time-based features
-```
-
-#### `src/models/`
-
-Machine learning model training and inference:
-
-```
-src/models/
-├── __init__.py
-├── preprocessing.py          # Data preprocessing for models
-├── training.py               # Model training functions
-├── evaluation.py             # Model evaluation metrics
-└── prediction.py             # Prediction generation
-```
-
-#### `src/visualization/`
-
-Plotly Dash components and layouts:
-
-```
-src/visualization/
-├── __init__.py
-├── dashboard.py              # Dash app initialization
-└── components/               # Dashboard components
-```
+- `api/`: Client code for interacting with external data sources
+- `config/`: Configuration management and validation
+- `data/`: Data ingestion, transformation, and storage
+- `features/`: Feature engineering and management
+- `models/`: Model training, evaluation, and prediction
+- `visualization/`: Dashboard and visualization components
 
 ### `tests/`
 
@@ -183,8 +118,8 @@ tests/
 The project structure supports the following development workflow:
 
 1. **Configuration**: Update or add configuration in the `config/` directory
-2. **Data Collection**: Implement data collection in `src/api/` and `src/data/ingestion.py`
-3. **Transformation**: Process raw data in `src/data/transformation.py`
+2. **Data Collection**: Implement data collection in `src/api/` and `src/data/`
+3. **Transformation**: Process raw data in `src/data/`
 4. **Feature Engineering**: Develop features in `src/features/`
 5. **Model Development**: Create and tune models in `src/models/`
 6. **Visualization**: Build dashboard components in `src/visualization/`
@@ -197,7 +132,7 @@ When extending the project:
 - **New Features**: Add to appropriate module in `src/features/`
 - **New Data Sources**: Create new client in `src/api/` and update ingestion
 - **New Models**: Add to `src/models/` with appropriate tests
-- **New Visualizations**: Create components in `src/visualization/components/`
+- **New Visualizations**: Create components in `src/visualization/`
 
 !!! note "Implementation Freedom"
     This structure provides a framework for organization, but developers have flexibility in implementation details as long as they maintain the overall architecture.

@@ -66,62 +66,18 @@ The feature engineering framework consists of several components:
 ### Base Feature Class
 
 All features extend a base class that provides common functionality:
-
-!!! example "Base Feature Structure"
-    ```python
-    class BaseFeature:
-        """Base class for all features"""
-        
-        def __init__(
-            self,
-            name: str,
-            version: int = 1,
-            description: str = "",
-            dependencies: List[str] = None,
-            category: str = "uncategorized",
-            tags: List[str] = None
-        ):
-            # Initialize feature metadata
-            pass
-        
-        def compute(self, data, incremental=True, **kwargs):
-            """Compute feature values"""
-            # Common computation logic
-            pass
-        
-        def validate(self, data):
-            """Validate feature values"""
-            # Common validation logic
-            pass
-    ```
+- Feature metadata (name, version, description)
+- Dependency management
+- Computation logic
+- Validation methods
 
 ### Feature Registry
 
 The registry maintains a catalog of all available features and their metadata:
-
-!!! example "Feature Registry"
-    ```python
-    class FeatureRegistry:
-        """Registry of all available features"""
-        
-        def __init__(self):
-            self.features = {}
-            
-        def register(self, feature_class):
-            """Register a feature class"""
-            # Registration logic
-            pass
-            
-        def get_feature(self, name, version=None):
-            """Get a feature by name and optional version"""
-            # Retrieval logic
-            pass
-            
-        def get_dependencies(self, feature_name, version=None):
-            """Get all dependencies for a feature"""
-            # Dependency resolution
-            pass
-    ```
+- Feature registration
+- Version management
+- Dependency resolution
+- Feature discovery
 
 ### Computation Engine
 
@@ -138,41 +94,19 @@ Features are organized into logical categories:
 
 ### Team Features
 
-Features that describe team performance and characteristics.
-
-!!! example "Team Feature Example"
-    ```python
-    class TeamOffensiveEfficiency(BaseFeature):
-        """Team's offensive efficiency (points per possession)"""
-        
-        def __init__(self, version=1):
-            super().__init__(
-                name="team_offensive_efficiency",
-                version=version,
-                description="Points scored per 100 possessions",
-                dependencies=["team_points", "team_possessions"],
-                category="team_efficiency"
-            )
-        
-        def _compute_impl(self, data, **kwargs):
-            # Calculation logic
-            return data.with_column(
-                (pl.col("team_points") * 100 / pl.col("team_possessions"))
-                .alias(self.name)
-            )
-    ```
+Features that describe team performance and characteristics, such as offensive efficiency, defensive metrics, and playing style indicators.
 
 ### Player Features
 
-Features that describe individual player performance and impact.
+Features that describe individual player performance and impact, including scoring efficiency, defensive contributions, and player roles.
 
 ### Game Context Features
 
-Features that capture the context of games (home/away, rivalry, rest days, etc.).
+Features that capture the context of games (home/away, rivalry, rest days, etc.)
 
 ### Temporal Features
 
-Features that incorporate time-series aspects (trends, momentum, etc.).
+Features that incorporate time-series aspects (trends, momentum, etc.)
 
 ## Configuration
 
@@ -182,22 +116,6 @@ Feature engineering is configured through YAML files that define:
 2. **Computation Settings**: Window sizes, aggregation periods
 3. **Storage Options**: Format and location for feature data
 4. **Validation Rules**: Thresholds and constraints for feature values
-
-!!! example "Feature Configuration"
-    ```yaml
-    features:
-      computation:
-        window_sizes: [1, 3, 5, 10]  # Game windows for rolling stats
-        recalculation_frequency: "daily"
-        
-      groups:
-        team_stats:
-          enabled: true
-          lookback_periods: [5, 10, 20]
-        player_stats:
-          enabled: true
-          lookback_periods: [5, 10]
-    ```
 
 ## Best Practices
 

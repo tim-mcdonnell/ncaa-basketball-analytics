@@ -102,71 +102,7 @@ Configuration values are validated using Pydantic models that define:
 3. **Constraints**: Enforcing value ranges and relationships
 4. **Derived Values**: Calculating values based on other settings
 
-!!! example "Pydantic Model Example"
-    ```python
-    from pydantic import BaseModel, Field, validator
-    from typing import List, Literal
-    import os
-    
-    class FeatureStorageConfig(BaseModel):
-        directory: str
-        format: Literal["parquet", "csv", "feather"] = "parquet"
-        
-        @validator('directory')
-        def create_directory_if_not_exists(cls, v):
-            os.makedirs(v, exist_ok=True)
-            return v
-    
-    class FeatureComputationConfig(BaseModel):
-        window_sizes: List[int]
-        recalculation_frequency: Literal["hourly", "daily", "weekly"] = "daily"
-    
-    class FeatureGroup(BaseModel):
-        enabled: bool = True
-        lookback_periods: List[int] = [5, 10, 20]
-    
-    class FeatureConfig(BaseModel):
-        storage: FeatureStorageConfig
-        computation: FeatureComputationConfig
-        groups: dict[str, FeatureGroup]
-    ```
-
-## Loading Configuration
-
-Configuration is loaded at application startup:
-
-```python
-import yaml
-from pathlib import Path
-from src.config.settings import APIConfig, DBConfig, FeatureConfig, ModelConfig
-
-def load_config(config_dir: str = "config"):
-    """Load all configuration files"""
-    config_path = Path(config_dir)
-    
-    # Load API config
-    with open(config_path / "api_config.yaml", "r") as f:
-        api_config = APIConfig(**yaml.safe_load(f))
-    
-    # Load DB config
-    with open(config_path / "db_config.yaml", "r") as f:
-        db_config = DBConfig(**yaml.safe_load(f))
-    
-    # Load feature config
-    with open(config_path / "feature_config.yaml", "r") as f:
-        feature_config = FeatureConfig(**yaml.safe_load(f))
-    
-    # Load model config
-    with open(config_path / "model_config.yaml", "r") as f:
-        model_config = ModelConfig(**yaml.safe_load(f))
-    
-    return {
-        "api": api_config,
-        "db": db_config,
-        "features": feature_config,
-        "models": model_config
-    }
-```
+Pydantic models provide both validation and documentation for all configuration options, ensuring that invalid configurations are caught early in the development process.
 
 ## Environment Variable Overrides
 

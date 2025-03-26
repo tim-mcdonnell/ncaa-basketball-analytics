@@ -42,32 +42,6 @@ graph TD
 - Schedules feature computation and model training
 - Manages incremental vs. full recalculations
 
-!!! example "Example DAG Structure"
-    ```python
-    from airflow import DAG
-    from airflow.operators.python import PythonOperator
-    from datetime import datetime, timedelta
-
-    with DAG(
-        'espn_data_collection',
-        schedule=timedelta(days=1),
-        start_date=datetime(2023, 1, 1),
-        catchup=False,
-    ) as dag:
-        
-        fetch_teams = PythonOperator(
-            task_id='fetch_teams',
-            python_callable=fetch_teams_data,
-        )
-        
-        fetch_games = PythonOperator(
-            task_id='fetch_games',
-            python_callable=fetch_games_data,
-        )
-        
-        fetch_teams >> fetch_games
-    ```
-
 ### DuckDB
 
 **Role**: Analytical database for storing, querying, and transforming sports data.
@@ -83,21 +57,6 @@ graph TD
 - Computation engine for complex queries
 - Integration with feature engineering framework
 
-!!! example "Example Query"
-    ```sql
-    -- Calculate team performance over a rolling window
-    SELECT 
-        team_id,
-        game_date,
-        points,
-        AVG(points) OVER (
-            PARTITION BY team_id 
-            ORDER BY game_date 
-            ROWS BETWEEN 5 PRECEDING AND 1 PRECEDING
-        ) as avg_points_last_5
-    FROM team_game_stats
-    ```
-
 ### Polars
 
 **Role**: Data manipulation library for efficient transformations and feature engineering.
@@ -112,26 +71,6 @@ graph TD
 - Primary data transformation library
 - Feature engineering computations
 - Preprocessing for ML models
-
-!!! example "Example Usage"
-    ```python
-    import polars as pl
-    
-    # Feature engineering with window functions
-    features_df = (
-        df.group_by("team_id")
-        .sort("game_date")
-        .select([
-            pl.col("team_id"),
-            pl.col("game_id"),
-            pl.col("points"),
-            pl.col("points").mean().over(
-                "team_id", 
-                pl.col("game_date").rolling_window(5)
-            ).alias("avg_points_5")
-        ])
-    )
-    ```
 
 ### Plotly Dash
 
@@ -165,7 +104,7 @@ The following libraries provide additional functionality:
 
 The development environment is supported by:
 
-- **Poetry**: Dependency management
+- **UV**: High-performance Python dependency manager and installer for creating/maintaining virtual environments, resolving dependencies, and installing packages
 - **pre-commit**: Automated code quality checks
 - **MkDocs Material**: Documentation generation
 - **GitHub Actions**: CI/CD pipelines
