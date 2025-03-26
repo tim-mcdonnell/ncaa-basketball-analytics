@@ -51,3 +51,40 @@ Many endpoints support the following parameters:
 ## Feedback and Support
 
 If you have feedback about this documentation or questions about the API, please reach out to the ESPN developer team.
+
+# API Reference
+
+This section provides reference documentation for the external APIs used in the NCAA Basketball Analytics project. It covers endpoint details, request/response formats, and implementation notes.
+
+## ESPN API
+
+The project primarily uses the ESPN API for college basketball data. This API provides comprehensive data on teams, players, games, and statistics for NCAA basketball.
+
+Key endpoints are documented in the [ESPN Endpoints](espn-endpoints.md) page, including:
+- Teams endpoint
+- Games/Events endpoint 
+- Players/Athletes endpoint
+- Rankings endpoint
+- Statistics endpoint
+- Play-by-play endpoint
+
+## API Client Implementation
+
+The project includes a custom ESPN API client that handles:
+
+- Authentication
+- Rate limiting
+- Pagination
+- Error handling
+- Response parsing
+
+The client is implemented in `src/api/client.py` with endpoint-specific methods and utilities for extracting and transforming the data.
+
+## Data Schemas
+
+Response schemas for the ESPN API are defined using Pydantic models in `src/api/schemas.py`. These schemas:
+
+- Validate the structure of API responses
+- Convert data types appropriately
+- Document the expected format of responses
+- Provide type hints for development
