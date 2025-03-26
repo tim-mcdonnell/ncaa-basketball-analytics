@@ -4,7 +4,7 @@
 
 This document outlines the data storage approach for the NCAA Basketball Analytics project. The system uses a hybrid architecture combining elements of:
 
-1. **Medallion Architecture** (Bronze, Silver, Gold layers)
+1. **Medallion Architecture** (Raw, Processed, Feature layers)
 2. **Normalized Relational Model** (for dimension and fact tables)
 3. **Feature Store Pattern** (for ML feature management)
 
@@ -12,9 +12,9 @@ This document outlines the data storage approach for the NCAA Basketball Analyti
 
 ```mermaid
 flowchart TD
-    A[Raw Data\nESPN API] --> B[Bronze Layer\nJSON/Parquet]
-    B --> C[Silver Layer\nNormalized Tables]
-    C --> D[Gold Layer\nFeature Tables]
+    A[Raw Data\nESPN API] --> B[Raw Layer\nJSON in DuckDB]
+    B --> C[Processed Layer\nNormalized Tables]
+    C --> D[Feature Layer\nFeature Tables]
     D --> E[Model Training]
     C --> F[Visualization]
     D --> F
@@ -24,40 +24,54 @@ flowchart TD
 
 The project uses a three-layer data architecture to transform raw data into analysis-ready features:
 
-#### Bronze Layer (Raw Data)
-- JSON data stored directly from ESPN API
-- Minimal transformation (except for file format conversion)
-- Location: `data/raw/`
-- Purpose: Historical record of source data
+#### Raw Layer (Raw Data)
+- JSON data stored directly from ESPN API in DuckDB tables
+- Raw tables follow naming convention `raw_*` (e.g., `raw_teams`, `raw_games`)
+- Each raw table includes the JSON payload plus metadata columns
+- Purpose: Historical record of source data with lineage tracking
 
-#### Silver Layer (Processed Data)
+#### Processed Layer (Normalized Data)
 - Cleaned, validated, and structured data
 - Normalized tables with defined relationships
-- Location: `data/processed/`
+- Tables follow dimensional modeling conventions (`dim_*` and `fact_*`)
 - Purpose: Clean data for analysis and reporting
 
-#### Gold Layer (Feature Data)
+#### Feature Layer (ML Features)
 - Derived features for machine learning
 - Denormalized for efficient model training
-- Location: `data/features/`
+- Tables follow feature naming convention (`feature_*`)
 - Purpose: Ready-to-use features for ML models
 
 ## Storage Strategy
 
-The project uses a combination of:
+The project uses a unified DuckDB-based storage approach:
 
-1. **Parquet Files**: Column-oriented storage for efficient analytics
-2. **DuckDB**: SQL interface for querying Parquet files
-3. **Polars DataFrames**: In-memory processing
+1. **Single DuckDB Database**: All data layers stored in one `.duckdb` file
+2. **JSON Storage**: Raw API responses stored as JSON in DuckDB tables
+3. **Polars Integration**: In-memory processing with Polars DataFrames
 
 !!! tip "Storage Benefits"
-    This approach provides SQL query capabilities without requiring a full database server, making the project portable and lightweight while maintaining analytical performance.
+    This approach provides a unified storage solution with SQL access across all data layers while maintaining the logical separation between raw, processed, and feature data. Using a single database file simplifies data management while still preserving the conceptual medallion architecture.
 
 ## Database Schema
 
-### Silver Layer: Dimensional Model
+### Raw Layer Tables
 
-The silver layer follows a dimensional model with clear relationships between fact and dimension tables:
+Raw layer tables store the direct output from API endpoints with minimal transformation:
+
+```
+raw_teams:
+- id: UUID (primary key, generated)
+- team_id: VARCHAR (from API)
+- raw_data: JSON (complete API response)
+- source_url: VARCHAR (API endpoint)
+- collected_at: TIMESTAMP (data collection time)
+- processing_version: VARCHAR (API client version)
+```
+
+### Processed Layer: Dimensional Model
+
+The processed layer follows a dimensional model with clear relationships between fact and dimension tables:
 
 ```mermaid
 erDiagram
@@ -133,7 +147,7 @@ The `fact_games` table stores game results, including references to participatin
 
 The `fact_player_game_stats` table stores individual player performance metrics for each game, including points, rebounds, assists, and shooting statistics.
 
-### Gold Layer: Feature Tables
+### Feature Layer: Feature Tables
 
 Features are organized into topic-specific tables for model training:
 
@@ -145,6 +159,8 @@ Time-series features aggregated at the team level, including:
 - Performance trends (rolling averages)
 - Opponent-adjusted statistics
 
+Tables follow naming pattern: `feature_team_*`
+
 #### Player Features
 
 Features for individual player performance, including:
@@ -152,6 +168,8 @@ Features for individual player performance, including:
 - Defensive impact indicators
 - Playing time patterns
 - Performance consistency metrics
+
+Tables follow naming pattern: `feature_player_*`
 
 #### Game Features
 
@@ -161,11 +179,13 @@ Features related to specific games and matchups, including:
 - Historical matchup statistics
 - Game importance metrics
 
+Tables follow naming pattern: `feature_game_*`
+
 ## Data Access Patterns
 
 ### SQL Queries
 
-DuckDB provides SQL access to all data layers, allowing for queries across bronze, silver, and gold layers for different analysis requirements.
+DuckDB provides SQL access to all data layers, allowing for queries across raw, processed, and feature layers for different analysis requirements.
 
 ### Polars DataFrames
 
@@ -193,8 +213,8 @@ Data quality is maintained through:
 
 When extending the data model:
 
-1. **Maintain the Layer Structure**: Keep the bronze/silver/gold separation
-2. **Follow Naming Conventions**: Use consistent naming across tables and columns
+1. **Maintain the Layer Structure**: Keep the raw/processed/feature separation
+2. **Follow Naming Conventions**: Use `raw_*`, `dim_*/fact_*`, and `feature_*` naming schemes
 3. **Document Relationships**: Update ERD diagrams when adding tables
 4. **Add Data Dictionary Entries**: Document new fields and their meaning
 5. **Test Queries**: Ensure new tables work with existing query patterns
