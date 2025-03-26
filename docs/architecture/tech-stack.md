@@ -10,9 +10,11 @@ graph TD
     A --> C[Polars]
     A --> D[Apache Airflow]
     A --> E[Plotly Dash]
+    A --> F[aiohttp]
     B <--> C
     C --> E
     D --> B
+    F --> B
 ```
 
 ## Core Technologies
@@ -51,11 +53,14 @@ graph TD
 - SQL interface with advanced analytical functions
 - Direct integration with Polars and Pandas
 - In-process architecture with minimal setup
+- Native JSON support for raw API data storage
 
 **Integration Points**:
-- Primary storage for processed data
+- Primary storage for all data layers (raw, processed, and feature)
+- Raw API responses stored as JSON in dedicated tables
+- Normalized data stored in dimension and fact tables
+- Feature data stored in feature-specific tables
 - Computation engine for complex queries
-- Integration with feature engineering framework
 
 ### Polars
 
@@ -71,6 +76,21 @@ graph TD
 - Primary data transformation library
 - Feature engineering computations
 - Preprocessing for ML models
+
+### aiohttp
+
+**Role**: Asynchronous HTTP client for efficient API data collection.
+
+**Key Features**:
+- Non-blocking I/O for high-concurrency API requests
+- Connection pooling for efficient resource usage
+- Configurable timeouts and session management
+- Session-based cookie persistence
+
+**Integration Points**:
+- Primary library for ESPN API data collection
+- Enables concurrent API requests for faster data gathering
+- Integrates with rate limiting and backoff strategies
 
 ### Plotly Dash
 
@@ -94,6 +114,7 @@ The following libraries provide additional functionality:
 | Library | Purpose | Integration |
 |---------|---------|-------------|
 | **Pydantic** | Data validation and settings management | Configuration validation |
+| **tenacity** | Retry logic with exponential backoff | API request resilience |
 | **LightGBM** | Gradient boosting framework | Primary ML algorithm |
 | **PyTorch** | Deep learning framework | Alternative ML models |
 | **MLflow** | ML experiment tracking | Model versioning and monitoring |

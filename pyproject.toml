@@ -5,6 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
 dependencies = [
+    "aiohttp>=3.11.14",
     "apache-airflow>=2.10.5",
     "dash>=3.0.1",
     "duckdb>=1.2.1",
@@ -13,5 +14,6 @@ dependencies = [
     "mlflow>=2.21.1",
     "polars>=1.26.0",
     "pre-commit>=4.2.0",
+    "tenacity>=9.0.0",
     "torch>=2.6.0",
 ]

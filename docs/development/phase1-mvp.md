@@ -18,22 +18,25 @@ The MVP will establish the foundational architecture with basic end-to-end funct
 *Goal: Establish reliable data collection from ESPN APIs*
 
 #### Tasks:
-- [ ] Create API client framework with appropriate rate limiting and error handling
-- [ ] Implement team data collection endpoints
-- [ ] Implement game data collection endpoints
-- [ ] Develop player data collection endpoints
-- [ ] Set up incremental data collection logic
+- [ ] Create asynchronous API client framework with aiohttp
+- [ ] Implement adaptive rate limiting with dynamic concurrency adjustment
+- [ ] Develop retry mechanism with exponential backoff using tenacity
+- [ ] Implement team data collection endpoints with concurrent fetching
+- [ ] Implement game data collection endpoints with concurrent fetching
+- [ ] Develop player data collection endpoints with concurrent fetching
+- [ ] Set up request queuing and batching for efficient processing
 - [ ] Implement data validation for API responses
 - [ ] Create unit tests for all API client functionality
 
 #### Success Criteria:
-- API client can reliably collect data for teams, games, and players
-- Handles API errors gracefully with appropriate retries and logging
+- API client can reliably collect data with optimized concurrency
+- Handles API errors gracefully with appropriate retries and backoff
+- Automatically adapts to API rate limits
 - Data validation ensures consistency and completeness
 
 #### Documentation Requirements:
-- API client usage examples
-- Rate limiting and backoff strategy documentation
+- API client usage examples with async patterns
+- Adaptive rate limiting strategy documentation
 - Data model documentation for API responses
 
 ### 2. Data Storage Implementation
@@ -138,7 +141,7 @@ The MVP will establish the foundational architecture with basic end-to-end funct
 
 #### Tasks:
 - [ ] Set up Airflow environment configuration
-- [ ] Implement data collection DAG
+- [ ] Implement data collection DAG with async task execution
 - [ ] Create feature calculation workflow
 - [ ] Develop model training pipeline DAG
 - [ ] Implement scheduling and monitoring
