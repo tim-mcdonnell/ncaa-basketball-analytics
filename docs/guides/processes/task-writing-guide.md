@@ -5,6 +5,17 @@ description: Guidelines for creating clear, comprehensive task descriptions for 
 
 # How to Write Effective Tasks for AI Coding Agents
 
+## Quick Reference
+
+For experienced users, here are the key elements to include in any AI task:
+
+- ✅ Explicit requirements with exact file paths and naming conventions
+- ✅ Complete test specifications with test case names and expected outcomes
+- ✅ Scope boundaries that define what is and isn't included
+- ✅ Decision history capturing conversation-derived choices
+- ✅ Context references to related components and examples
+- ✅ Machine-verifiable acceptance criteria
+
 ## Introduction
 
 This guide outlines best practices for writing clear, comprehensive task descriptions for AI coding agents. Following these guidelines will help ensure that your AI assistant correctly understands, implements, and validates your coding requirements.
@@ -33,6 +44,138 @@ This guide outlines best practices for writing clear, comprehensive task descrip
 - Specify database structures, file organization, and design patterns
 - Prevent misalignment by stating what NOT to do when necessary
 - Reference existing architecture documentation
+
+## AI-Specific Task Elements
+
+### 📝 Decision Capture Framework
+
+For tasks derived from conversations, capture key decisions explicitly:
+
+```markdown
+## 📝 Decision History
+
+**Origin Discussion:** [Brief reference to originating conversation]
+
+**Key Decisions:**
+1. **Database Choice:** Selected DuckDB over SQLite because [specific reasons]
+   - Considered SQLite but rejected due to [specific reason]
+
+2. **Authentication Approach:** Implemented JWT-based auth because [specific reasons]
+   - Alternative OAuth approach wasn't chosen because [specific reason]
+
+**Open Questions:**
+- How should we handle [specific edge case]? Default to [recommendation] if not specified.
+```
+
+### 🔎 Assumed Knowledge Section
+
+Document background knowledge the AI is expected to have:
+
+```markdown
+## 🔎 Assumed Knowledge
+
+**Project Patterns:**
+- Repository pattern as implemented in `src/data/teams/repository.py`
+- Error handling approach following `src/utils/errors.py`
+
+**Technical Concepts:**
+- Understanding of DuckDB's asynchronous API
+- Familiarity with pytest fixtures and mocking
+
+**Code Conventions:**
+- Snake_case for variables and functions
+- PascalCase for classes
+- Type annotations required for all public functions
+```
+
+### 📚 Progressive Detail Structure
+
+Organize information from most critical to supplementary:
+
+```markdown
+## 📚 Implementation Hierarchy
+
+**Must Have (P0):**
+- Core functionality X that enables [primary use case]
+- Critical validation for [specific data/input]
+
+**Should Have (P1):**
+- Enhanced error handling for [specific scenarios]
+- Performance optimization for [specific operation]
+
+**Nice to Have (P2):**
+- Additional utility functions for [specific case]
+- Extra validation for edge case [description]
+```
+
+### 🔄 Contextual References
+
+Link the task to related components in the codebase:
+
+```markdown
+## 🔄 Related Components
+
+**Similar Implementations:**
+- `src/data/games/repository.py`: Similar repository pattern implementation
+- `src/services/espn/client.py`: Example of API client structure to follow
+
+**Dependent Components:**
+- `src/api/endpoints/teams.py`: Will use this implementation
+- `src/ui/components/TeamList.tsx`: Will consume this data
+
+**Required Libraries:**
+- `duckdb-engine==0.9.2`: For database operations
+- `pydantic==2.4.2`: For data validation
+```
+
+### 🤖 Machine-Parsable Formats
+
+Use consistent, parsable patterns for key elements:
+
+```markdown
+## 🤖 Implementation Guidelines
+
+**File Paths:**
+- `src/data/players/repository.py`: Repository implementation
+- `tests/data/players/test_repository.py`: Repository tests
+
+**Function Signatures:**
+```python
+def get_player_by_id(player_id: str) -> Optional[Player]:
+    """Retrieve player by ID."""
+```
+
+**Database Schema:**
+```sql
+CREATE TABLE players (
+    player_id VARCHAR PRIMARY KEY,
+    name VARCHAR NOT NULL
+);
+```
+```
+
+### ✓ Task Completion Validation
+
+Include a structured validation checklist:
+
+```markdown
+## ✓ Implementation Validation
+
+**Code Quality Checks:**
+- [ ] Passes `mypy` type checking with zero errors
+- [ ] Passes `pylint` with score ≥ 9.0/10
+- [ ] Line coverage ≥ 90% for all new code
+
+**Functional Verification:**
+- [ ] All specified unit tests pass
+- [ ] Integration test with [specific scenario] passes
+- [ ] Manual verification with [specific input] produces [expected output]
+
+**Documentation Verification:**
+- [ ] Public API is documented with docstrings
+- [ ] README.md updated with usage examples
+- [ ] Architecture diagram updated (if applicable)
+```
 
 ## Essential Task Components
 
@@ -282,7 +425,7 @@ def test_team_schema_validation():
     assert "team_id" in invalid_result.errors
 ```
 
-## Task Template Structure
+## AI Task Template Structure
 
 ```markdown
 # Task: [Descriptive Title]
@@ -291,6 +434,17 @@ def test_team_schema_validation():
 **Background:** [Context and why this matters]
 **Objective:** [Specific goal to accomplish]
 **Scope:** [Clear boundaries of the task]
+
+## 📝 Decision History
+**Origin Discussion:** [Reference to source conversation]
+**Key Decisions:**
+- Decision 1: [Specific choice with rationale]
+- Decision 2: [Specific choice with rationale]
+
+## 🔎 Assumed Knowledge
+**Project Patterns:** [List of patterns to follow]
+**Technical Concepts:** [Required technical understanding]
+**Code Conventions:** [Style and naming conventions]
 
 ## 📐 Technical Requirements
 ### Architecture
@@ -336,12 +490,22 @@ CREATE TABLE example (
 2. [Second step with details]
 3. [Remaining steps...]
 
+## 🔄 Related Components
+**Similar Implementations:** [List relevant examples in codebase]
+**Dependent Components:** [List components that will use this implementation]
+**Required Libraries:** [List specific libraries with versions]
+
 ## ✅ Acceptance Criteria
 - [ ] All specified tests pass
 - [ ] Code follows project architecture
 - [ ] Real-world testing validates functionality
 - [ ] Documentation is complete and accurate
 - [ ] Code meets quality standards (specify tools/metrics)
+
+## ✓ Implementation Validation
+**Code Quality Checks:** [List specific quality checks]
+**Functional Verification:** [List verification steps]
+**Documentation Verification:** [List documentation requirements]
 ```
 
 ## Common Pitfalls to Avoid
@@ -370,6 +534,14 @@ CREATE TABLE example (
 ### ❌ Overly Detailed Implementation
 **Poor:** Providing 50+ lines of code with all error handling and edge cases.
 **Better:** Providing a 10-15 line example that illustrates the pattern with key interfaces.
+
+### ❌ Missing Conversation Context
+**Poor:** Creating a task with no reference to decisions made in prior discussions.
+**Better:** "Based on our discussion on [date], we decided to use JWT for authentication because of [specific reasons]. This task implements that approach."
+
+### ❌ Assuming Context Persistence
+**Poor:** Referring to "the approach we discussed" without specifying what that approach was.
+**Better:** Explicitly stating "Implement the repository pattern using the Active Record approach with these specific methods: [list methods]"
 
 ## Implementation Verification Checklist
 
