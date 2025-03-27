@@ -3,7 +3,7 @@ import json
 import os
 from unittest.mock import patch, AsyncMock
 
-from src.data.api.espn_client import AsyncESPNClient
+from src.data.api.espn_client.client import AsyncESPNClient
 from src.data.api.endpoints.teams import get_all_teams, get_team_details
 from src.data.api.endpoints.games import get_game_details, get_games_by_team
 from src.data.api.endpoints.players import get_players_by_team

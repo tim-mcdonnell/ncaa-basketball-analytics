@@ -3,7 +3,7 @@ import asyncio
 import logging
 import sys
 
-from src.data.api.espn_client import AsyncESPNClient
+from src.data.api.espn_client.client import AsyncESPNClient
 from src.data.api.endpoints.teams import get_all_teams, get_team_details
 
 # Set up logging

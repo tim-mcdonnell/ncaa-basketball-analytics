@@ -4,7 +4,7 @@ from typing import List, Optional, Dict, Any
 import logging
 import asyncio
 
-from src.data.api.espn_client import AsyncESPNClient
+from src.data.api.espn_client.client import AsyncESPNClient
 from src.data.api.models.team import Team, TeamRecord
 from src.data.api.exceptions import APIError, ResourceNotFoundError
 from src.data.api.endpoints.common import get_async_context

@@ -19,7 +19,7 @@ from datetime import datetime, timedelta
 # Add the src directory to the Python path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../..")))
 
-from src.data.api.espn_client import AsyncESPNClient
+from src.data.api.espn_client.client import AsyncESPNClient
 from src.data.api.exceptions import APIError
 from src.data.api.endpoints.games import get_games_by_date_range, get_game_details
 
@@ -30,6 +30,16 @@ logging.basicConfig(
     handlers=[logging.StreamHandler(), logging.FileHandler("fetch_games.log")],
 )
 logger = logging.getLogger(__name__)
+
+
+# Add a custom JSON encoder for datetime objects
+class DateTimeEncoder(json.JSONEncoder):
+    """Custom JSON encoder that handles datetime objects."""
+
+    def default(self, obj):
+        if isinstance(obj, datetime):
+            return obj.isoformat()
+        return super().default(obj)
 
 
 def get_date_range(days_back: int = 7) -> tuple:
@@ -92,7 +102,6 @@ async def fetch_games(
                 end_date=end_date,
                 team_id=team_id,
                 client=client,
-                incremental=incremental,
             )
 
             if not all_games:
@@ -130,9 +139,12 @@ async def fetch_games(
             # Create output directory if it doesn't exist
             os.makedirs(os.path.dirname(os.path.abspath(output_file)), exist_ok=True)
 
-            # Save games to file
+            # Convert pydantic models to dictionaries using model_dump() for Pydantic v2
+            games_data = [game.model_dump() for game in all_games]
+
+            # Save games to file with custom encoder
             with open(output_file, "w") as f:
-                json.dump(all_games, f, indent=2)
+                json.dump(games_data, f, indent=2, cls=DateTimeEncoder)
 
             logger.info(f"Saved {len(all_games)} games to {output_file}")
 

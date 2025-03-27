@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 import logging
 import asyncio
 
-from src.data.api.espn_client import AsyncESPNClient
+from src.data.api.espn_client.client import AsyncESPNClient
 from src.data.api.models.game import Game, GameStatus, TeamScore
 from src.data.api.exceptions import APIError, ResourceNotFoundError, ParseError
 from src.data.api.endpoints.common import get_async_context

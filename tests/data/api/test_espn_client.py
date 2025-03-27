@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import patch
 
 # Import the ESPN client that doesn't exist yet (will implement based on this test)
-from src.data.api.espn_client import AsyncESPNClient
+from src.data.api.espn_client.client import AsyncESPNClient
 
 
 class TestAsyncESPNClient:

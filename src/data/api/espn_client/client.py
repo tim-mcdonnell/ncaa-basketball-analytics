@@ -240,11 +240,18 @@ class ESPNClient:
 
     # Player endpoints
     def get_team_players(self, team_id: str) -> List[Dict[str, Any]]:
-        """Synchronous wrapper for get_team_players."""
+        """Get team roster."""
         return self._loop.run_until_complete(self._async_client.get_team_players(team_id))
 
     def get_player_stats(self, player_id: str, season: Optional[str] = None) -> Dict[str, Any]:
-        """Synchronous wrapper for get_player_stats."""
-        return self._loop.run_until_complete(
-            self._async_client.get_player_stats(player_id, season=season)
-        )
+        """
+        Get statistics for a specific player.
+
+        Args:
+            player_id: Player ID
+            season: Optional season year (e.g., "2023-24")
+
+        Returns:
+            Player statistics data
+        """
+        return self._loop.run_until_complete(self._async_client.get_player_stats(player_id, season))

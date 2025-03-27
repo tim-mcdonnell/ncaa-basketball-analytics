@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import patch, AsyncMock
 
-from src.data.api.espn_client import AsyncESPNClient
+from src.data.api.espn_client.client import AsyncESPNClient
 from src.data.api.exceptions import ServiceUnavailableError, ConnectionResetError
 
 

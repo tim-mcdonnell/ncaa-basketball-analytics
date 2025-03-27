@@ -5,7 +5,7 @@ import tempfile
 import shutil
 from unittest.mock import AsyncMock
 
-from src.data.api.espn_client import AsyncESPNClient
+from src.data.api.espn_client.client import AsyncESPNClient
 
 
 class TestESPNClientIncremental:
