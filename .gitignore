@@ -44,9 +44,11 @@ notebooks/**/*.ipynb
 data/raw/*
 data/processed/*
 data/features/*
+data/metadata/*
 !data/raw/.gitkeep
 !data/processed/.gitkeep
 !data/features/.gitkeep
+!data/metadata/.gitkeep
 
 # Model files
 data/models/*
