@@ -1,0 +1,37 @@
+###############################################
+# NCAA Basketball Analytics - Production Configuration
+###############################################
+
+# Environment-specific overrides for production environment
+
+# API Configuration
+api:
+  host: api.basketball-analytics.com
+  port: 443
+  debug: false
+  timeout: 10  # Shorter timeout in production
+  rate_limit: 100  # Enable rate limiting in production
+
+# Database Configuration
+db:
+  read_only: true  # Read-only in production
+  threads: 8  # More threads in production
+  allow_external_access: false  # Definitely no external access in production
+
+# Feature Configuration
+feature:
+  cache_results: true
+  max_cache_age_seconds: 3600  # 1 hour cache expiry in production
+
+# Model Configuration
+model:
+  hyperparameters:
+    learning_rate: 0.01  # Conservative learning rate in production
+  experiment_tracking:
+    enabled: true
+    log_artifacts: false  # Don't store artifacts in production to save space
+
+# Dashboard Configuration
+dashboard:
+  refresh_interval: 300  # Slower refresh in production (5 minutes)
+  cache_timeout: 600  # Longer cache in production (10 minutes)

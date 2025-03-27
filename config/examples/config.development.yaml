@@ -1,0 +1,36 @@
+###############################################
+# NCAA Basketball Analytics - Development Configuration
+###############################################
+
+# Environment-specific overrides for development environment
+
+# API Configuration
+api:
+  debug: true
+  timeout: 60
+
+# Database Configuration
+db:
+  read_only: false
+
+# Feature Configuration
+feature:
+  enabled: true
+  cache_results: true
+  parameters:
+    window_size:
+      value: 10  # Larger window for development testing
+
+# Model Configuration
+model:
+  hyperparameters:
+    learning_rate: 0.1  # Faster learning for development
+    max_depth: 8  # Deeper trees for development
+  evaluation:
+    validation_split: 0.3  # Larger validation split for development
+
+# Dashboard Configuration
+dashboard:
+  refresh_interval: 10  # Faster refresh in development
+  theme:
+    primary_color: "#007bff"  # Different color for development
