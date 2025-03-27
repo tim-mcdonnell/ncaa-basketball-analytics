@@ -1,0 +1,39 @@
+{
+  "sports": [
+    {
+      "leagues": [
+        {
+          "teams": [
+            {
+              "team": {
+                "id": "59",
+                "name": "Michigan",
+                "abbreviation": "MICH",
+                "location": "Ann Arbor",
+                "logo": "https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/130.png"
+              }
+            },
+            {
+              "team": {
+                "id": "127",
+                "name": "Michigan State",
+                "abbreviation": "MSU",
+                "location": "East Lansing",
+                "logo": "https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/127.png"
+              }
+            },
+            {
+              "team": {
+                "id": "194",
+                "name": "Ohio State",
+                "abbreviation": "OSU",
+                "location": "Columbus",
+                "logo": "https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/194.png"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

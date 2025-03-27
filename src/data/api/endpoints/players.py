@@ -3,142 +3,233 @@ import logging
 import asyncio
 
 from src.data.api.espn_client import AsyncESPNClient
-from src.data.api.models.player import Player, PlayerList
-from src.data.api.exceptions import APIError, ResourceNotFoundError, ParseError
+from src.data.api.models.player import Player, PlayerStats
+from src.data.api.exceptions import APIError, ResourceNotFoundError
+from src.data.api.endpoints.common import get_async_context
 
 logger = logging.getLogger(__name__)
 
-async def get_team_players(
-    team_id: str,
-    client: Optional[AsyncESPNClient] = None,
-    incremental: bool = False
-) -> List[Player]:
+
+def _parse_player_stats(stats_data: Dict[str, Any]) -> Optional[PlayerStats]:
+    """Parse player stats from API response.
+
+    Args:
+        stats_data: Stats data from API response
+
+    Returns:
+        PlayerStats object or None if no stats data
     """
-    Get players for a specific team.
-    
+    if not stats_data:
+        return None
+
+    # Extract basic stats
+    points_per_game = float(stats_data.get("ppg", 0.0))
+    rebounds_per_game = float(stats_data.get("rpg", 0.0))
+    assists_per_game = float(stats_data.get("apg", 0.0))
+
+    # Create stats object
+    return PlayerStats(
+        points_per_game=points_per_game,
+        rebounds_per_game=rebounds_per_game,
+        assists_per_game=assists_per_game,
+    )
+
+
+def _create_player_from_response(player_data: Dict[str, Any]) -> Player:
+    """Create Player object from API response.
+
+    Args:
+        player_data: Player data from API response
+
+    Returns:
+        Player object
+    """
+    player_id = str(player_data.get("id", ""))
+
+    # Parse name fields
+    full_name = player_data.get("displayName", "")
+    first_name = player_data.get("firstName", "")
+    last_name = player_data.get("lastName", "")
+
+    # Parse team information
+    team_id = None
+    team_name = None
+    if team := player_data.get("team", {}):
+        team_id = str(team.get("id", ""))
+        team_name = team.get("name", "")
+
+    # Parse position
+    position = player_data.get("position", {}).get("name", "")
+
+    # Parse jersey number
+    jersey = player_data.get("jersey", "")
+
+    # Parse headshot URL
+    headshot = player_data.get("headshot", {}).get("href", None)
+
+    # Parse stats if available
+    stats = None
+    if statistics := player_data.get("statistics", []):
+        if statistics and isinstance(statistics, list) and statistics:
+            stats_data = statistics[0]
+            stats = _parse_player_stats(stats_data)
+
+    return Player(
+        id=player_id,
+        full_name=full_name,
+        first_name=first_name,
+        last_name=last_name,
+        team_id=team_id,
+        team_name=team_name,
+        position=position,
+        jersey=jersey,
+        headshot=headshot,
+        stats=stats,
+    )
+
+
+async def get_player_details(
+    player_id: str, client: Optional[AsyncESPNClient] = None, should_close: bool = True
+) -> Player:
+    """Get details for a specific player.
+
+    Args:
+        player_id: Player ID
+        client: Optional AsyncESPNClient instance
+        should_close: Whether to close the client when done
+
+    Returns:
+        Player object
+
+    Raises:
+        ResourceNotFoundError: If the player is not found
+        APIError: If there's an error with the API request
+    """
+    client_provided = client is not None
+    client = client or AsyncESPNClient()
+
+    try:
+        async with get_async_context(client, should_close and not client_provided):
+            response = await client.get_player_details(player_id)
+
+            if not response or "athlete" not in response:
+                raise ResourceNotFoundError(f"Player {player_id} not found")
+
+            player_data = response["athlete"]
+            player = _create_player_from_response(player_data)
+
+            logger.info(f"Retrieved details for player {player_id}")
+            return player
+    except ResourceNotFoundError:
+        logger.error(f"Player {player_id} not found")
+        raise
+    except Exception as e:
+        logger.error(f"Error retrieving player details for {player_id}: {e}")
+        raise APIError(f"Failed to retrieve player details: {e}") from e
+
+
+async def get_players_by_team(
+    team_id: str, client: Optional[AsyncESPNClient] = None, should_close: bool = True
+) -> List[Player]:
+    """Get players for a specific team.
+
     Args:
         team_id: Team ID
         client: Optional AsyncESPNClient instance
-        incremental: Whether to use incremental updates
-        
+        should_close: Whether to close the client when done
+
     Returns:
         List of Player objects
-        
+
     Raises:
-        ResourceNotFoundError: If team not found
-        APIError: If API request fails
+        ResourceNotFoundError: If the team is not found
+        APIError: If there's an error with the API request
     """
-    # Create client if not provided
-    should_close = False
-    if client is None:
-        client = AsyncESPNClient()
-        should_close = True
-    
+    client_provided = client is not None
+    client = client or AsyncESPNClient()
+
     try:
-        async with client if should_close else asyncio.nullcontext():
-            # Get players from API
-            raw_players = await client.get_team_players(team_id)
-            
-            # Convert to Player objects
+        async with get_async_context(client, should_close and not client_provided):
+            response = await client.get_team_players(team_id)
+
             players = []
-            for raw_player in raw_players:
+            for player_data in response:
                 try:
-                    player = Player(
-                        id=raw_player["id"],
-                        name=raw_player["name"],
-                        jersey=raw_player.get("jersey"),
-                        position=raw_player.get("position", "Unknown"),
-                        height=raw_player.get("height"),
-                        weight=raw_player.get("weight"),
-                        year=raw_player.get("year")
-                    )
-                    players.append(player)
+                    players.append(_create_player_from_response(player_data))
                 except Exception as e:
                     logger.warning(f"Failed to parse player: {e}")
-            
-            logger.info(f"Successfully retrieved {len(players)} players for team {team_id}")
+
+            logger.info(f"Retrieved {len(players)} players for team {team_id}")
             return players
     except ResourceNotFoundError:
-        logger.error(f"Team {team_id} not found")
-        raise
-    except APIError as e:
-        logger.error(f"Failed to get players for team {team_id}: {e}")
+        logger.error(f"Team {team_id} roster not found")
         raise
     except Exception as e:
-        logger.error(f"Unexpected error getting players for team {team_id}: {e}")
-        raise APIError(f"Unexpected error: {str(e)}")
+        logger.error(f"Error retrieving players for team {team_id}: {e}")
+        raise APIError(f"Failed to retrieve team roster: {e}") from e
+
 
 async def get_players_batch(
-    team_ids: List[str],
-    client: Optional[AsyncESPNClient] = None,
-    incremental: bool = False
-) -> Dict[str, List[Player]]:
-    """
-    Get players for multiple teams concurrently.
-    
+    player_ids: List[str], client: Optional[AsyncESPNClient] = None, should_close: bool = True
+) -> List[Player]:
+    """Get details for multiple players concurrently.
+
     Args:
-        team_ids: List of team IDs
+        player_ids: List of player IDs
         client: Optional AsyncESPNClient instance
-        incremental: Whether to use incremental updates
-        
+        should_close: Whether to close the client when done
+
     Returns:
-        Dictionary mapping team IDs to lists of Player objects
-        
+        List of Player objects
+
     Raises:
-        APIError: If API request fails
+        APIError: If there's an error with the API request
     """
-    # Create client if not provided
-    should_close = False
-    if client is None:
-        client = AsyncESPNClient()
-        should_close = True
-    
+    client_provided = client is not None
+    client = client or AsyncESPNClient()
+
     try:
-        async with client if should_close else asyncio.nullcontext():
-            # Create tasks for getting players for each team
-            tasks = {team_id: get_team_players(team_id, client, incremental) for team_id in team_ids}
-            
+        async with get_async_context(client, should_close and not client_provided):
+            # Create tasks for each player ID
+            tasks = []
+            for player_id in player_ids:
+                tasks.append(get_player_details(player_id, client=client, should_close=False))
+
             # Execute tasks concurrently
-            results = {}
-            for team_id, task in tasks.items():
-                try:
-                    results[team_id] = await task
-                except ResourceNotFoundError:
-                    logger.warning(f"Team {team_id} not found")
-                    results[team_id] = []
-                except Exception as e:
-                    logger.error(f"Failed to get players for team {team_id}: {e}")
-                    results[team_id] = []
-            
-            # Log stats
-            successful_teams = sum(1 for players in results.values() if players)
-            total_players = sum(len(players) for players in results.values())
-            logger.info(f"Successfully retrieved players for {successful_teams} of {len(team_ids)} teams ({total_players} total players)")
-            
-            return results
+            results = await asyncio.gather(*tasks, return_exceptions=True)
+
+            # Filter out exceptions
+            players = []
+            for result in results:
+                if isinstance(result, Exception):
+                    logger.warning(f"Error retrieving player: {result}")
+                else:
+                    players.append(result)
+
+            logger.info(f"Retrieved {len(players)} players in batch")
+            return players
     except Exception as e:
-        logger.error(f"Failed to get players batch: {e}")
-        raise APIError(f"Batch player retrieval failed: {str(e)}")
+        logger.error(f"Error retrieving players batch: {e}")
+        raise APIError(f"Failed to retrieve players batch: {e}") from e
+
 
 async def get_player_stats(
-    player_id: str,
-    season: Optional[str] = None,
-    client: Optional[AsyncESPNClient] = None
+    player_id: str, season: Optional[str] = None, client: Optional[AsyncESPNClient] = None
 ) -> Dict[str, Any]:
     """
     Get statistics for a specific player.
-    
+
     Note: This is a placeholder for a future implementation.
     The current ESPN API client doesn't have an endpoint for player stats.
-    
+
     Args:
         player_id: Player ID
         season: Optional season year (e.g., "2023-24")
         client: Optional AsyncESPNClient instance
-        
+
     Returns:
         Dictionary of player statistics
-        
+
     Raises:
         ResourceNotFoundError: If player not found
         APIError: If API request fails
@@ -150,5 +241,5 @@ async def get_player_stats(
         "player_id": player_id,
         "season": season or "current",
         "stats": {},
-        "message": "Statistics not available - endpoint not implemented"
-    } 
+        "message": "Statistics not available - endpoint not implemented",
+    }

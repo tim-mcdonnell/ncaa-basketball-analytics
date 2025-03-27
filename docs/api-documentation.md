@@ -48,7 +48,7 @@ async def fetch_teams_example():
         # Get all NCAA basketball teams
         teams = await get_all_teams(client=client)
         print(f"Retrieved {len(teams)} teams")
-        
+
         # Print team names
         for team in teams:
             print(f"{team.name} ({team.abbreviation})")
@@ -71,7 +71,7 @@ async def fetch_games_example():
     start_date = end_date - timedelta(days=7)
     start_str = start_date.strftime("%Y%m%d")
     end_str = end_date.strftime("%Y%m%d")
-    
+
     async with AsyncESPNClient() as client:
         # Get games for the last week
         games = await get_games_by_date_range(
@@ -100,15 +100,15 @@ async def fetch_players_example():
         if not teams:
             print("No teams found")
             return
-            
+
         # Get players for the first team
         first_team = teams[0]
         team_id = first_team.get("id")
         team_name = first_team.get("name", "Unknown")
-        
+
         print(f"Fetching players for {team_name} (ID: {team_id})")
         players = await get_team_players(team_id, client=client)
-        
+
         print(f"Retrieved {len(players)} players for {team_name}")
         # Print player names and positions
         for player in players:
@@ -213,20 +213,20 @@ from src.data.api.espn_client import AsyncESPNClient
 client = AsyncESPNClient(
     # Base URL (if different from default)
     base_url="https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball",
-    
+
     # Retry configuration
     max_retries=5,
     retry_min_wait=2.0,
     retry_max_wait=30.0,
     retry_factor=2.0,
-    
+
     # Timeout configuration
     timeout=60.0,
-    
+
     # Rate limiting configuration
     rate_limit_calls=10,
     rate_limit_period=60.0,
-    
+
     # Metadata configuration
     metadata_dir="custom/metadata/path",
     metadata_file="custom_metadata.json"
@@ -259,4 +259,4 @@ Planned enhancements for the ESPN API integration include:
 - Support for NCAA tournament brackets and schedules
 - Enhanced statistics collection
 - Historical data archiving
-- Custom data transformations for analysis 
+- Custom data transformations for analysis

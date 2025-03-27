@@ -104,7 +104,7 @@ The project implements log rotation and retention policies:
 
 - **Rotation**: Daily with timestamp suffix
 - **Compression**: Logs older than 1 day are compressed
-- **Retention**: 
+- **Retention**:
   - Critical logs: 1 year
   - Error logs: 6 months
   - Warning logs: 3 months

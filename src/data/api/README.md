@@ -68,7 +68,7 @@ async def fetch_recent_games():
     start_date = end_date - timedelta(days=7)
     start_str = start_date.strftime("%Y%m%d")
     end_str = end_date.strftime("%Y%m%d")
-    
+
     async with AsyncESPNClient() as client:
         games = await get_games_by_date_range(
             start_date=start_str,
@@ -174,4 +174,4 @@ python -m pytest tests/data/api
 
 ## Extended Documentation
 
-For more detailed documentation, please refer to the [API Documentation](../../../docs/api-documentation.md) in the docs directory. 
+For more detailed documentation, please refer to the [API Documentation](../../../docs/api-documentation.md) in the docs directory.

@@ -643,4 +643,4 @@ Returns a list of available rankings for the specified season.
 **Example Request:**
 ```bash
 curl -s "https://sports.core.api.espn.com/v2/sports/basketball/leagues/mens-college-basketball/seasons/2025/rankings" | jq
-``` 
+```

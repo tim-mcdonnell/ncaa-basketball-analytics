@@ -180,4 +180,4 @@ To begin work on a specific phase:
 1. Review the phase's key deliverables in this document
 2. Check GitHub issues assigned to the relevant milestone
 3. Refer to detailed specifications in the `docs/development/` directory
-4. Follow the [project workflow](project-structure.md) for development 
+4. Follow the [project workflow](project-structure.md) for development

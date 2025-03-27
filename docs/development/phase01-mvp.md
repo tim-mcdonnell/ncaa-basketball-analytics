@@ -235,4 +235,4 @@ In addition to component-specific success criteria, the Phase 01 MVP must meet t
 
 ## Next Steps After Phase 01
 
-Upon successful completion of Phase 01, development will transition to Phase 02: Comprehensive Feature Engineering, focusing on expanding the feature set to capture the complexity of basketball performance. 
+Upon successful completion of Phase 01, development will transition to Phase 02: Comprehensive Feature Engineering, focusing on expanding the feature set to capture the complexity of basketball performance.

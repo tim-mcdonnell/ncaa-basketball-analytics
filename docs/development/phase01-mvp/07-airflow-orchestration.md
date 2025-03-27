@@ -165,22 +165,22 @@ def test_data_collection_dag_structure():
     """
     # Import the DAG
     from airflow.dags.data_collection_dag import data_collection_dag
-    
+
     # Get the DAG
     dag = data_collection_dag
-    
+
     # Assert DAG properties
     assert dag.dag_id == "data_collection"
     assert dag.schedule_interval == "0 4 * * *"  # Daily at 4:00 AM
     assert dag.catchup is False
-    
+
     # Get tasks
     collect_teams = dag.get_task("collect_teams")
     collect_games = dag.get_task("collect_games")
     collect_players = dag.get_task("collect_players")
     collect_stats = dag.get_task("collect_stats")
     data_quality = dag.get_task("data_quality")
-    
+
     # Assert task dependencies
     assert collect_games.upstream_list == [collect_teams]
     assert collect_players.upstream_list == [collect_games]
@@ -198,10 +198,10 @@ def test_espn_teams_operator():
     # Arrange
     from airflow.operators.espn_operators import ESPNTeamsOperator
     import os
-    
+
     # Create a test connection
     conn_id = "espn_api_test"
-    
+
     # Create the operator
     operator = ESPNTeamsOperator(
         task_id="test_collect_teams",
@@ -210,17 +210,17 @@ def test_espn_teams_operator():
         timeout=30,
         retries=3
     )
-    
+
     # Act
     # Execute the operator
     operator.execute(context={})
-    
+
     # Assert
     # Check that teams were collected
     from src.data.storage.db import get_connection
     conn = get_connection(":memory:")
     result = conn.execute("SELECT COUNT(*) FROM raw_teams").fetchone()
-    
+
     # Verify we have teams data
     assert result[0] > 0, "No teams data was collected"
 ```
@@ -228,7 +228,7 @@ def test_espn_teams_operator():
 ### Real-World Testing
 
 - Run: `airflow dags test data_collection_dag 2023-01-01`
-- Verify: 
+- Verify:
   1. All tasks execute without errors
   2. Data is collected and stored correctly
   3. Appropriate logs are generated
@@ -417,11 +417,11 @@ import asyncio
 class ESPNTeamsOperator(BaseOperator):
     """
     Operator that collects team data from the ESPN API.
-    
+
     This operator uses the AsyncESPNClient to efficiently collect
     team data and store it in the DuckDB database.
     """
-    
+
     @apply_defaults
     def __init__(
         self,
@@ -434,7 +434,7 @@ class ESPNTeamsOperator(BaseOperator):
     ):
         """
         Initialize the operator.
-        
+
         Args:
             conn_id: Airflow connection ID for ESPN API
             duckdb_path: Path to DuckDB database
@@ -446,23 +446,23 @@ class ESPNTeamsOperator(BaseOperator):
         self.duckdb_path = duckdb_path
         self.timeout = timeout
         self.retries = retries
-    
+
     def execute(self, context):
         """
         Execute the operator.
-        
+
         Args:
             context: Airflow task execution context
-            
+
         Returns:
             Number of teams collected
         """
         logging.info("Collecting team data from ESPN API")
-        
+
         # Get API connection details from Airflow connection
         conn = self.get_connection(self.conn_id)
         api_key = conn.password
-        
+
         # Create API client
         async def fetch_teams():
             async with AsyncESPNClient(
@@ -471,10 +471,10 @@ class ESPNTeamsOperator(BaseOperator):
                 retries=self.retries
             ) as client:
                 return await client.get_teams()
-        
+
         # Execute async client
         teams = asyncio.run(fetch_teams())
-        
+
         # Store in database
         db_conn = get_connection(self.duckdb_path)
         for team in teams:
@@ -490,7 +490,7 @@ class ESPNTeamsOperator(BaseOperator):
                     "1.0.0"
                 )
             )
-        
+
         logging.info(f"Collected {len(teams)} teams")
         return len(teams)
 ```
@@ -528,4 +528,4 @@ This Airflow orchestration implementation aligns with the specifications in the 
 2. **Timeliness**: Workflows complete within defined time windows
 3. **Resource Efficiency**: Optimal resource utilization during execution
 4. **Observability**: Complete visibility into workflow status and history
-5. **Maintainability**: Modular design that supports easy updates 
+5. **Maintainability**: Modular design that supports easy updates

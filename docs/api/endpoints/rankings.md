@@ -283,4 +283,4 @@ The `others` array contains teams that received votes but did not make the top 2
 
 ### Teams That Dropped Out
 
-The `droppedOut` array contains teams that were ranked in the previous poll but fell out of the current rankings. These teams have the same structure as ranked teams with `current` value of 0 and `previous` showing their former ranking. 
+The `droppedOut` array contains teams that were ranked in the previous poll but fell out of the current rankings. These teams have the same structure as ranked teams with `current` value of 0 and `previous` showing their former ranking.

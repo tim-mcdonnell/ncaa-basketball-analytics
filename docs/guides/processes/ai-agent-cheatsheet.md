@@ -54,10 +54,10 @@ def test_team_repository_get_by_id():
     # Arrange
     repo = TeamRepository(":memory:")
     team_id = "MICH"
-    
+
     # Act
     result = repo.get_by_id(team_id)
-    
+
     # Assert
     assert result is not None
     assert result.team_id == team_id
@@ -160,10 +160,10 @@ Good example:
 def get_team_by_id(team_id: str) -> Optional[Team]:
     """
     Retrieve team by ID from the database.
-    
+
     Args:
         team_id: Unique team identifier
-        
+
     Returns:
         Team object if found, None otherwise
     """
@@ -182,7 +182,7 @@ uv venv
 # Activate virtual environment
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
-# Install dependencies 
+# Install dependencies
 uv sync
 ```
 
@@ -211,7 +211,7 @@ git commit -m "Fix bug in feature calculation
 # 1. Create a temporary markdown file
 echo "Fix bug in feature calculation
 
-- Updated algorithm to handle edge cases  
+- Updated algorithm to handle edge cases
 - Added additional validation" > tmp/commit-message.md
 
 # 2. Reference the file in your command
@@ -254,4 +254,4 @@ git commit -F tmp/commit-message.md
 
 ## Remember
 
-This project strictly follows test-driven development practices. Never implement features without first writing tests that define the expected behavior. 
+This project strictly follows test-driven development practices. Never implement features without first writing tests that define the expected behavior.

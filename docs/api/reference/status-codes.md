@@ -102,4 +102,4 @@ GET /v2/sports/basketball/leagues/mens-college-basketball/teams/999999
   "code": "RATE_LIMIT_EXCEEDED",
   "detail": "You have exceeded the rate limit of 100 requests per minute. Please wait and try again later."
 }
-``` 
+```

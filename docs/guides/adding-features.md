@@ -39,7 +39,7 @@ class TeamScoringEfficiency(BaseFeature):
     """
     Measures a team's scoring efficiency as points per possession
     """
-    
+
     def __init__(self, version=1):
         super().__init__(
             name="team_scoring_efficiency",
@@ -49,7 +49,7 @@ class TeamScoringEfficiency(BaseFeature):
             category="team_offense",
             tags=["efficiency", "scoring"]
         )
-    
+
     def _compute_impl(
         self,
         data: pl.DataFrame,
@@ -66,14 +66,14 @@ class TeamScoringEfficiency(BaseFeature):
             ])
         )
         return result
-    
+
     def get_output_column_name(self) -> str:
         return f"team_scoring_efficiency_v{self.version}"
-    
+
     def _validate_impl(self, data: pl.DataFrame) -> dict:
         feature_col = self.get_output_column_name()
         values = data[feature_col]
-        
+
         return {
             "min_acceptable": 50,  # Minimum reasonable value
             "max_acceptable": 150,  # Maximum reasonable value
@@ -93,12 +93,12 @@ from src.features.team_features import TeamScoringEfficiency
 
 def register_features():
     registry = FeatureRegistry()
-    
+
     # Register existing features...
-    
+
     # Register new feature
     registry.register(TeamScoringEfficiency())
-    
+
     return registry
 ```
 
@@ -119,20 +119,20 @@ def test_team_scoring_efficiency():
         "points": [80, 60, 90],
         "possessions": [70, 65, 75]
     })
-    
+
     # Initialize feature
     feature = TeamScoringEfficiency()
-    
+
     # Compute feature
     result = feature.compute(test_data)
-    
+
     # Check output
     assert feature.get_output_column_name() in result.columns
-    
+
     # Verify calculations
     expected = [80 * 100 / 70, 60 * 100 / 65, 90 * 100 / 75]
     actual = result[feature.get_output_column_name()].to_list()
-    
+
     for e, a in zip(expected, actual):
         assert pytest.approx(e, 0.01) == a
 ```
@@ -148,10 +148,10 @@ from src.features.team_features import TeamScoringEfficiency
 # In your task definition:
 def compute_team_features(**kwargs):
     # ...existing code...
-    
+
     # Add your new feature
     features.append(TeamScoringEfficiency())
-    
+
     # ...continue with feature computation...
 ```
 

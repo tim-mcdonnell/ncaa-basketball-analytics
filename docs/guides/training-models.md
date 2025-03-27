@@ -40,7 +40,7 @@ db_conn = get_db_connection()
 # Query base data
 games_query = """
 SELECT g.game_id, g.season_id, g.game_date, g.home_team_id, g.away_team_id,
-       g.home_score, g.away_score, 
+       g.home_score, g.away_score,
        CASE WHEN g.home_score > g.away_score THEN 1 ELSE 0 END as home_win
 FROM fact_games g
 WHERE g.status = 'completed'
@@ -91,29 +91,29 @@ def train_game_outcome_model(
 ):
     """
     Train a game outcome prediction model
-    
+
     Args:
         features_df: DataFrame with features and target
         config: Model configuration
         model_name: Name for the model
         model_version: Version string
-        
+
     Returns:
         Trained model and evaluation metrics
     """
     # Split data
     X = features_df.drop(["game_id", "home_win"], axis=1)
     y = features_df["home_win"]
-    
+
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, 
+        X, y,
         test_size=config.training.test_size,
         random_state=config.training.random_state
     )
-    
+
     # Start MLflow run
     mlflow.start_run(run_name=f"{model_name}_v{model_version}")
-    
+
     # Log parameters
     mlflow.log_params({
         "model_type": "lightgbm",
@@ -122,47 +122,47 @@ def train_game_outcome_model(
         "features": list(X.columns),
         **config.model_params.lightgbm.dict()
     })
-    
+
     # Train model
     model = lgb.LGBMClassifier(
         **config.model_params.lightgbm.dict()
     )
     model.fit(X_train, y_train)
-    
+
     # Evaluate
     y_pred_proba = model.predict_proba(X_test)[:, 1]
     y_pred = model.predict(X_test)
-    
+
     metrics = {
         "accuracy": accuracy_score(y_test, y_pred),
         "log_loss": log_loss(y_test, y_pred_proba),
         "roc_auc": roc_auc_score(y_test, y_pred_proba)
     }
-    
+
     # Log metrics
     mlflow.log_metrics(metrics)
-    
+
     # Log model
     mlflow.lightgbm.log_model(
-        model, 
+        model,
         artifact_path="model",
         registered_model_name=model_name
     )
-    
+
     # Log feature importance
     feature_importance = pd.DataFrame({
         'feature': X.columns,
         'importance': model.feature_importances_
     }).sort_values('importance', ascending=False)
-    
+
     mlflow.log_table(
         feature_importance.to_dict(orient="records"),
         artifact_file="feature_importance.json"
     )
-    
+
     # End run
     mlflow.end_run()
-    
+
     return model, metrics
 ```
 
@@ -204,7 +204,7 @@ with DAG(
     catchup=False,
     tags=['model_training', 'game_prediction'],
 ) as dag:
-    
+
     # Define training task
     train_model_task = PythonOperator(
         task_id='train_game_outcome_model',
@@ -226,7 +226,7 @@ Set up model evaluation processes:
 import pandas as pd
 import numpy as np
 from sklearn.metrics import (
-    accuracy_score, precision_score, recall_score, 
+    accuracy_score, precision_score, recall_score,
     f1_score, roc_auc_score, log_loss,
     confusion_matrix, classification_report
 )
@@ -245,7 +245,7 @@ def evaluate_classification_model(
 ):
     """
     Evaluate a binary classification model
-    
+
     Args:
         model: Trained model with predict_proba method
         X_test: Test features
@@ -253,14 +253,14 @@ def evaluate_classification_model(
         threshold: Classification threshold
         model_name: Name for mlflow logging
         run_id: MLflow run ID for logging
-        
+
     Returns:
         Dictionary of evaluation metrics
     """
     # Generate predictions
     y_pred_proba = model.predict_proba(X_test)[:, 1]
     y_pred = (y_pred_proba >= threshold).astype(int)
-    
+
     # Calculate metrics
     metrics = {
         "accuracy": accuracy_score(y_test, y_pred),
@@ -271,15 +271,15 @@ def evaluate_classification_model(
         "log_loss": log_loss(y_test, y_pred_proba),
         "threshold": threshold
     }
-    
+
     # Generate confusion matrix
     cm = confusion_matrix(y_test, y_pred)
-    
+
     # If mlflow run is provided, log results
     if run_id:
         with mlflow.start_run(run_id=run_id):
             mlflow.log_metrics(metrics)
-            
+
             # Log confusion matrix as figure
             plt.figure(figsize=(8, 6))
             sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
@@ -287,14 +287,14 @@ def evaluate_classification_model(
             plt.ylabel('Actual')
             plt.title('Confusion Matrix')
             plt.tight_layout()
-            
+
             mlflow.log_figure(plt.gcf(), "confusion_matrix.png")
             plt.close()
-            
+
             # Log classification report
             report = classification_report(y_test, y_pred, output_dict=True)
             mlflow.log_dict(report, "classification_report.json")
-    
+
     return metrics
 ```
 
@@ -312,10 +312,10 @@ from typing import Dict, List, Any
 def load_latest_model(model_name: str):
     """
     Load the latest version of a registered model
-    
+
     Args:
         model_name: Name of registered model
-        
+
     Returns:
         Loaded model
     """
@@ -329,28 +329,28 @@ def predict_game_outcomes(
 ) -> pd.DataFrame:
     """
     Generate predictions for upcoming games
-    
+
     Args:
         upcoming_games: DataFrame of upcoming games
         features: Dictionary of feature DataFrames
         model_name: Name of model to use
-        
+
     Returns:
         DataFrame with game predictions
     """
     # Load model
     model = load_latest_model(model_name)
-    
+
     # Prepare features for prediction
     # [Implementation details for your specific case]
-    
+
     # Make predictions
     predictions = model.predict(X_pred)
-    
+
     # Add predictions to games
     results = upcoming_games.copy()
     results["win_probability"] = predictions
-    
+
     return results
 ```
 

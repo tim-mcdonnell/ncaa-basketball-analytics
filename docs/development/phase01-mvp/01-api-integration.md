@@ -209,7 +209,7 @@ async def fetch_all_data():
     async with AsyncESPNClient() as client:
         # Fetch all teams concurrently
         teams = await client.get_teams()
-        
+
         # Concurrently fetch multiple date ranges
         date_ranges = [
             (datetime(2023, 11, 1), datetime(2023, 11, 30)),
@@ -223,7 +223,7 @@ async def fetch_all_data():
         all_games_results = await asyncio.gather(*games_tasks)
         for games in all_games_results:
             all_games.extend(games)
-            
+
         # Concurrently fetch player data for multiple teams
         team_ids = ["59", "127", "248"]  # Example team IDs
         player_tasks = [
@@ -231,7 +231,7 @@ async def fetch_all_data():
             for team_id in team_ids
         ]
         all_players_results = await asyncio.gather(*player_tasks)
-        
+
         return teams, all_games, all_players_results
 
 # Run in an async context
@@ -251,10 +251,10 @@ class AdaptiveRateLimiter:
         self.success_streak = 0
         self.failure_streak = 0
         self.lock = asyncio.Lock()
-    
+
     async def acquire(self):
         await self.semaphore.acquire()
-    
+
     async def release(self, success=True):
         self.semaphore.release()
         async with self.lock:
@@ -315,4 +315,4 @@ The API integration component should be implemented early in the Phase 1 develop
 1. **Reliability**: >99% success rate for API requests with appropriate retries
 2. **Efficiency**: Minimal collection time through optimal concurrency
 3. **Coverage**: All required data points successfully collected
-4. **Adaptability**: System automatically adjusts to API rate limits and availability 
+4. **Adaptability**: System automatically adjusts to API rate limits and availability

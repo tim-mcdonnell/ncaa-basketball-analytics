@@ -195,16 +195,16 @@ from src.data.models import Team
 
 class TeamRepository:
     """Repository for team data operations."""
-    
+
     def __init__(self, db_path: str):
         """Initialize with database path."""
         self.db_path = db_path
-    
+
     def get_by_id(self, team_id: str) -> Optional[Team]:
         """Retrieve team by ID."""
         # Implementation would go here
         pass
-    
+
     def create(self, team: Team) -> str:
         """Create a new team record."""
         # Implementation would go here
@@ -230,11 +230,11 @@ class TeamRepository:
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
-        
+
     def get_by_id(self, team_id: str) -> Optional[Team]:
         try:
             result = self.conn.execute(
-                "SELECT * FROM teams WHERE team_id = ?", 
+                "SELECT * FROM teams WHERE team_id = ?",
                 [team_id]
             ).fetchone()
             if not result:
@@ -248,7 +248,7 @@ class TeamRepository:
         except Exception as e:
             logging.error(f"Error retrieving team: {e}")
             raise RepositoryError(f"Failed to retrieve team: {e}")
-    
+
     # More methods with full implementation...
 ```
 
@@ -267,15 +267,15 @@ def test_team_schema_validation():
     """Test that team schema validates correctly."""
     # Arrange
     valid_team = {
-        "team_id": "MICH", 
+        "team_id": "MICH",
         "team_name": "Michigan Wolverines"
     }
     invalid_team = {"team_name": "Michigan Wolverines"}
-    
+
     # Act
     valid_result = validate_team(valid_team)
     invalid_result = validate_team(invalid_team)
-    
+
     # Assert
     assert valid_result.is_valid is True
     assert invalid_result.is_valid is False
@@ -404,4 +404,4 @@ Before considering a task complete, verify that:
 
 Writing effective tasks for AI coding agents requires clarity, specificity, and thoroughness. By following these guidelines and using the provided template, you can ensure that your AI assistant has all the information needed to successfully implement your requirements.
 
-Remember that AI agents work best with explicit instructions that leave little room for interpretation. Taking the time to craft comprehensive task descriptions will save development time, reduce misunderstandings, and result in higher-quality implementations. 
+Remember that AI agents work best with explicit instructions that leave little room for interpretation. Taking the time to craft comprehensive task descriptions will save development time, reduce misunderstandings, and result in higher-quality implementations.

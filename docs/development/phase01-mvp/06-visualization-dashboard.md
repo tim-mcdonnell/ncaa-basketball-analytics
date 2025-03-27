@@ -169,18 +169,18 @@ def test_team_selector_component():
     # Arrange
     from src.dashboard.components.team_selector import create_team_selector
     from src.dashboard.data.queries import get_all_teams
-    
+
     # Mock the team data
     teams = [
         {"team_id": "1", "name": "Michigan", "conference": "Big Ten"},
         {"team_id": "2", "name": "Duke", "conference": "ACC"},
         {"team_id": "3", "name": "Kentucky", "conference": "SEC"}
     ]
-    
+
     # Act
     # Create the component with mock data
     team_selector = create_team_selector(teams)
-    
+
     # Assert
     assert team_selector is not None
     # Check that the dropdown component exists
@@ -303,14 +303,14 @@ from dash import html, dcc
 def create_stats_card(title, value, subtitle, icon, color="primary"):
     """
     Create a reusable stats card component
-    
+
     Args:
         title: Card title
         value: Main value to display
         subtitle: Explanatory text below value
         icon: Font Awesome icon name
         color: Bootstrap color name
-        
+
     Returns:
         Dash component representing a statistics card
     """
@@ -349,24 +349,24 @@ app = get_app()
 def update_win_loss_chart(team_id, start_date, end_date):
     """
     Update the win/loss chart based on team and date selection
-    
+
     Args:
         team_id: Selected team ID
         start_date: Start date for filtering
         end_date: End date for filtering
-        
+
     Returns:
         Updated Plotly figure object
     """
     if not team_id:
         return {}  # Return empty figure if no team selected
-    
+
     # Get team record from database
     record = get_team_record(team_id, start_date, end_date)
-    
+
     # Create chart
     figure = create_win_loss_chart(record)
-    
+
     return figure
 ```
 
@@ -379,16 +379,16 @@ from dash import html, dcc, callback, Input, Output
 def create_team_selector(teams):
     """
     Create a team selection component with dropdown and conference filter
-    
+
     Args:
         teams: List of team dictionaries with team_id, name, and conference
-        
+
     Returns:
         Dash component for team selection
     """
     # Get unique conferences
     conferences = sorted(list(set(team["conference"] for team in teams)))
-    
+
     component = html.Div([
         html.H5("Team Selection"),
         html.Div([
@@ -410,7 +410,7 @@ def create_team_selector(teams):
             )
         ])
     ], className="team-selector p-3 border rounded")
-    
+
     return component
 
 # Add callback to filter teams by conference
@@ -421,20 +421,20 @@ def create_team_selector(teams):
 def filter_teams_by_conference(conference):
     """
     Filter the team dropdown based on selected conference
-    
+
     Args:
         conference: Selected conference or None for all
-        
+
     Returns:
         Updated options for team dropdown
     """
     from src.dashboard.data.queries import get_all_teams
-    
+
     teams = get_all_teams()
-    
+
     if conference:
         teams = [team for team in teams if team["conference"] == conference]
-    
+
     return [{"label": team["name"], "value": team["team_id"]} for team in teams]
 ```
 
@@ -470,4 +470,4 @@ This visualization dashboard implementation aligns with the specifications in th
 2. **Performance**: Visualizations load and update within acceptable timeframes
 3. **Responsiveness**: Dashboard functions well across device types
 4. **Insight Generation**: Visualizations effectively communicate key insights
-5. **Extensibility**: New visualizations can be added with minimal effort 
+5. **Extensibility**: New visualizations can be added with minimal effort

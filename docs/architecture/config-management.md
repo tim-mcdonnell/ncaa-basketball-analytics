@@ -114,7 +114,7 @@ The configuration system supports overriding settings through environment variab
 
 !!! tip "Production Deployments"
     For production deployments, use environment variables to configure:
-    
+
     * API credentials
     * Database connection strings
     * Resource limits (memory, threads)

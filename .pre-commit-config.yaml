@@ -18,4 +18,4 @@ repos:
 
 ci:
   autofix_commit_msg: '[pre-commit.ci] Auto fixes from pre-commit hooks'
-  autoupdate_commit_msg: '[pre-commit.ci] Update pre-commit hooks' 
+  autoupdate_commit_msg: '[pre-commit.ci] Update pre-commit hooks'

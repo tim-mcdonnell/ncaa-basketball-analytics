@@ -158,28 +158,28 @@ def test_basic_game_prediction_model():
     input_dim = 10
     hidden_dim = 5
     model = GamePredictionModel(input_dim=input_dim, hidden_dim=hidden_dim)
-    
+
     # Create simple test data
     X = torch.randn(16, input_dim)
     y_true = torch.randint(0, 2, (16, 1)).float()
-    
+
     # Act
     # Forward pass
     y_pred = model(X)
-    
+
     # Compute loss
     loss_fn = nn.BCEWithLogitsLoss()
     loss = loss_fn(y_pred, y_true)
-    
+
     # Backward pass
     optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
     optimizer.zero_grad()
     loss.backward()
     optimizer.step()
-    
+
     # Get new predictions after parameter update
     y_pred_after = model(X)
-    
+
     # Assert
     assert y_pred.shape == (16, 1), "Output shape should match input batch size"
     assert loss > 0, "Loss should be positive for random initialization"
@@ -189,7 +189,7 @@ def test_basic_game_prediction_model():
 ### Real-World Testing
 
 - Run: `python -m src.models.scripts.train_model --model-type=basic --features=game_prediction`
-- Verify: 
+- Verify:
   1. Model trains without errors
   2. Training and validation metrics are logged
   3. Model artifact is saved
@@ -313,15 +313,15 @@ import torch.nn as nn
 class GamePredictionModel(nn.Module):
     """
     Basic neural network model for predicting basketball game outcomes.
-    
+
     This model takes team and game features as input and predicts the
     probability of the home team winning.
     """
-    
+
     def __init__(self, input_dim, hidden_dim=64, dropout_rate=0.2, learning_rate=0.001):
         """
         Initialize the model.
-        
+
         Args:
             input_dim: Dimension of input features
             hidden_dim: Dimension of hidden layer
@@ -329,7 +329,7 @@ class GamePredictionModel(nn.Module):
             learning_rate: Learning rate for optimization
         """
         super().__init__()
-        
+
         # Model architecture
         self.network = nn.Sequential(
             nn.Linear(input_dim, hidden_dim),
@@ -340,47 +340,47 @@ class GamePredictionModel(nn.Module):
             nn.Dropout(dropout_rate),
             nn.Linear(hidden_dim // 2, 1)
         )
-        
+
         # Save hyperparameters
         self.input_dim = input_dim
         self.hidden_dim = hidden_dim
         self.dropout_rate = dropout_rate
         self.learning_rate = learning_rate
-        
+
         # Initialize optimizer
         self.optimizer = torch.optim.Adam(self.parameters(), lr=learning_rate)
         self.loss_fn = nn.BCEWithLogitsLoss()
-    
+
     def forward(self, x):
         """
         Forward pass through the network.
-        
+
         Args:
             x: Input tensor of shape (batch_size, input_dim)
-            
+
         Returns:
             Predictions tensor of shape (batch_size, 1)
         """
         return self.network(x)
-    
+
     def predict_proba(self, x):
         """
         Predict probability of home team winning.
-        
+
         Args:
             x: Input tensor of shape (batch_size, input_dim)
-            
+
         Returns:
             Probabilities tensor of shape (batch_size, 1)
         """
         with torch.no_grad():
             logits = self(x)
             return torch.sigmoid(logits)
-    
+
     def save(self, path):
         """
         Save model to disk.
-        
+
         Args:
             path: Path to save model
         """
@@ -395,15 +395,15 @@ class GamePredictionModel(nn.Module):
             }
         }
         torch.save(save_dict, path)
-    
+
     @classmethod
     def load(cls, path):
         """
         Load model from disk.
-        
+
         Args:
             path: Path to saved model
-            
+
         Returns:
             Loaded model instance
         """
@@ -452,4 +452,4 @@ This predictive modeling implementation aligns with the specifications in the ar
 2. **Calibration**: Achieve well-calibrated probability predictions
 3. **Robustness**: Consistent performance across seasons and tournaments
 4. **Interpretability**: Clear feature importance and model explanations
-5. **Training Efficiency**: Complete model training within reasonable time 
+5. **Training Efficiency**: Complete model training within reasonable time

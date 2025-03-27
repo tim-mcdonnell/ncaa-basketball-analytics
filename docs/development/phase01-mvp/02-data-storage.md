@@ -162,7 +162,7 @@ src/
    - Incremental updates with reconciliation logic
 
 2. Implement data transformation using Polars:
-   - Parse JSON to extract structured data 
+   - Parse JSON to extract structured data
    - Handle data type conversions
    - Apply business logic and derivations
 
@@ -249,14 +249,14 @@ def test_database_initialization():
     db_path = "test_ncaa.duckdb"
     if os.path.exists(db_path):
         os.remove(db_path)
-    
+
     # Act
     db = Database(db_path)
     db.initialize_schema()
-    
+
     # Assert
     assert os.path.exists(db_path)
-    
+
     # Verify all tables exist
     tables = db.list_tables()
     required_tables = [
@@ -434,55 +434,55 @@ CREATE TABLE IF NOT EXISTS fact_player_stats (
 ```python
 class TeamRepository:
     """Repository for accessing team data in the dimensional model."""
-    
+
     def __init__(self, db_connection):
         """Initialize with a database connection."""
         self.db = db_connection
-    
+
     def get_by_id(self, team_id: str) -> Optional[Team]:
         """
         Retrieve a team by ID.
-        
+
         Args:
             team_id: The unique identifier for the team
-            
+
         Returns:
             Team object if found, None otherwise
         """
         query = """
-        SELECT * FROM dim_teams 
+        SELECT * FROM dim_teams
         WHERE team_id = ?
         """
         result = self.db.execute(query, (team_id,)).fetchone()
         if not result:
             return None
         return Team(**result)
-    
+
     def get_by_conference(self, conference: str) -> List[Team]:
         """
         Retrieve all teams in a specific conference.
-        
+
         Args:
             conference: The conference name
-            
+
         Returns:
             List of Team objects in the specified conference
         """
         query = """
-        SELECT * FROM dim_teams 
+        SELECT * FROM dim_teams
         WHERE conference = ?
         ORDER BY name
         """
         results = self.db.execute(query, (conference,)).fetchall()
         return [Team(**row) for row in results]
-    
+
     def create(self, team: Team) -> Team:
         """
         Create a new team record.
-        
+
         Args:
             team: Team object with data to insert
-            
+
         Returns:
             The created Team with any database-generated fields
         """
@@ -494,7 +494,7 @@ class TeamRepository:
         RETURNING *
         """
         params = (
-            team.team_id, team.name, team.short_name, 
+            team.team_id, team.name, team.short_name,
             team.conference, team.division, team.location,
             team.mascot, team.wins, team.losses, team.raw_data_id
         )
@@ -533,4 +533,4 @@ This data storage implementation aligns with the specifications in the architect
 1. **Data Integrity**: Zero data quality issues in processed layer
 2. **Performance**: Sub-second query response for common operations
 3. **Scalability**: Handles growing dataset sizes efficiently
-4. **Reliability**: Consistent data access with proper error handling 
+4. **Reliability**: Consistent data access with proper error handling

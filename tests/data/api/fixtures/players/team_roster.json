@@ -1,0 +1,54 @@
+{
+  "team": {
+    "id": "59",
+    "name": "Michigan",
+    "abbreviation": "MICH",
+    "athletes": [
+      {
+        "id": "101",
+        "fullName": "Player One",
+        "jersey": "1",
+        "position": {"name": "Guard"},
+        "height": "6'2\"",
+        "weight": "185",
+        "class": {"name": "Senior"}
+      },
+      {
+        "id": "102",
+        "fullName": "Player Two",
+        "jersey": "2",
+        "position": {"name": "Forward"},
+        "height": "6'8\"",
+        "weight": "220",
+        "class": {"name": "Junior"}
+      },
+      {
+        "id": "103",
+        "fullName": "Player Three",
+        "jersey": "3",
+        "position": {"name": "Center"},
+        "height": "6'11\"",
+        "weight": "240",
+        "class": {"name": "Sophomore"}
+      },
+      {
+        "id": "104",
+        "fullName": "Player Four",
+        "jersey": "4",
+        "position": {"name": "Guard"},
+        "height": "6'1\"",
+        "weight": "180",
+        "class": {"name": "Freshman"}
+      },
+      {
+        "id": "105",
+        "fullName": "Player Five",
+        "jersey": "5",
+        "position": {"name": "Forward"},
+        "height": "6'7\"",
+        "weight": "215",
+        "class": {"name": "Senior"}
+      }
+    ]
+  }
+}

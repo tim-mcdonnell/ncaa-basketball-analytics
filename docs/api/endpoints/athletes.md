@@ -471,4 +471,4 @@ Returns notes and important information about an athlete for a specific season.
 **Example Request:**
 ```bash
 curl -s "https://sports.core.api.espn.com/v2/sports/basketball/leagues/mens-college-basketball/seasons/2025/athletes/4433137/notes" | jq
-``` 
+```

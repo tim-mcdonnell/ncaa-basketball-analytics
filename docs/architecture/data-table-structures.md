@@ -111,7 +111,7 @@ erDiagram
         varchar conference_id PK
         varchar conference_name
     }
-    
+
     FACT-GAMES }|--|| DIM-SEASONS : "season"
     FACT-GAMES }|--|| DIM-TEAMS : "home_team"
     FACT-GAMES }|--|| DIM-TEAMS : "away_team"

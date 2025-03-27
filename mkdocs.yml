@@ -91,4 +91,4 @@ nav:
     - Technical Reference:
       - Data Structures: api/reference/data-structures.md
       - Query Parameters: api/reference/query-parameters.md
-      - Status Codes: api/reference/status-codes.md 
+      - Status Codes: api/reference/status-codes.md

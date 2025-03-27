@@ -1,5 +1,4 @@
 import pytest
-import json
 from unittest.mock import MagicMock, AsyncMock
 
 from src.data.api.async_client import AsyncClient
@@ -29,12 +28,12 @@ def mock_espn_client():
     client.get_team_details = AsyncMock()
     client.get_games = AsyncMock()
     client.get_team_players = AsyncMock()
-    
+
     # Set up rate limiter mock
     client.rate_limiter = MagicMock(spec=AdaptiveRateLimiter)
     client.rate_limiter.acquire = AsyncMock()
     client.rate_limiter.release = AsyncMock()
-    
+
     return client
 
 
@@ -42,14 +41,18 @@ def mock_espn_client():
 def sample_teams_response():
     """Sample response for teams endpoint."""
     return {
-        "sports": [{
-            "leagues": [{
-                "teams": [
-                    {"team": {"id": "1", "name": "Team A", "abbreviation": "TA"}},
-                    {"team": {"id": "2", "name": "Team B", "abbreviation": "TB"}}
+        "sports": [
+            {
+                "leagues": [
+                    {
+                        "teams": [
+                            {"team": {"id": "1", "name": "Team A", "abbreviation": "TA"}},
+                            {"team": {"id": "2", "name": "Team B", "abbreviation": "TB"}},
+                        ]
+                    }
                 ]
-            }]
-        }]
+            }
+        ]
     }
 
 
@@ -63,7 +66,7 @@ def sample_team_details_response():
             "abbreviation": "TA",
             "location": "Location A",
             "logo": "http://example.com/logo.png",
-            "record": {"items": [{"summary": "10-5"}]}
+            "record": {"items": [{"summary": "10-5"}]},
         }
     }
 
@@ -78,27 +81,31 @@ def sample_games_response():
                 "date": "2023-11-15T19:00Z",
                 "name": "Team A vs Team B",
                 "shortName": "TA vs TB",
-                "competitions": [{
-                    "competitors": [
-                        {"team": {"id": "1", "name": "Team A"}, "score": "75"},
-                        {"team": {"id": "2", "name": "Team B"}, "score": "70"}
-                    ],
-                    "status": {"type": {"completed": True}}
-                }]
+                "competitions": [
+                    {
+                        "competitors": [
+                            {"team": {"id": "1", "name": "Team A"}, "score": "75"},
+                            {"team": {"id": "2", "name": "Team B"}, "score": "70"},
+                        ],
+                        "status": {"type": {"completed": True}},
+                    }
+                ],
             },
             {
                 "id": "402",
                 "date": "2023-11-18T20:00Z",
                 "name": "Team C vs Team D",
                 "shortName": "TC vs TD",
-                "competitions": [{
-                    "competitors": [
-                        {"team": {"id": "3", "name": "Team C"}, "score": "80"},
-                        {"team": {"id": "4", "name": "Team D"}, "score": "82"}
-                    ],
-                    "status": {"type": {"completed": True}}
-                }]
-            }
+                "competitions": [
+                    {
+                        "competitors": [
+                            {"team": {"id": "3", "name": "Team C"}, "score": "80"},
+                            {"team": {"id": "4", "name": "Team D"}, "score": "82"},
+                        ],
+                        "status": {"type": {"completed": True}},
+                    }
+                ],
+            },
         ]
     }
 
@@ -109,6 +116,11 @@ def sample_players_response():
     return {
         "athletes": [
             {"id": "101", "fullName": "Player One", "position": {"name": "Guard"}, "jersey": "10"},
-            {"id": "102", "fullName": "Player Two", "position": {"name": "Forward"}, "jersey": "20"}
+            {
+                "id": "102",
+                "fullName": "Player Two",
+                "position": {"name": "Forward"},
+                "jersey": "20",
+            },
         ]
-    } 
+    }

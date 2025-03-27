@@ -173,23 +173,23 @@ def test_team_win_percentage_calculation():
     # Arrange
     registry = FeatureRegistry()
     registry.register(TeamWinPercentage)
-    
+
     # Create test dependencies
     # Mock the dependency features to return known values
     mock_wins_feature = Mock()
     mock_wins_feature.compute.return_value = 15
-    
+
     mock_losses_feature = Mock()
     mock_losses_feature.compute.return_value = 5
-    
+
     # Register mocks with the registry
     registry.register_instance("team_wins", mock_wins_feature)
     registry.register_instance("team_losses", mock_losses_feature)
-    
+
     # Act
     win_pct_calculator = registry.get_feature("team_win_percentage")
     result = win_pct_calculator.compute(team_id="test_team")
-    
+
     # Assert
     assert result == 0.75
     mock_wins_feature.compute.assert_called_once_with(team_id="test_team", start_date=None, end_date=None)
@@ -275,7 +275,7 @@ class TeamWinPercentage(TeamFeature):
         # Get dependencies
         wins = self.get_dependency("team_wins", team_id, start_date, end_date)
         losses = self.get_dependency("team_losses", team_id, start_date, end_date)
-        
+
         # Compute feature
         total_games = wins + losses
         if total_games == 0:
@@ -307,52 +307,52 @@ X_train = team_performance_features.compute_batch(team_ids=train_teams)
 ```python
 class FeatureRegistry:
     """Central registry for all features in the system."""
-    
+
     def __init__(self):
         """Initialize the feature registry."""
         self._features = {}
         self._groups = {}
-    
+
     def register(self, feature_class, group=None):
         """
         Register a feature class with the registry.
-        
+
         Args:
             feature_class: The feature class to register (must have metadata)
             group: Optional group name to include the feature in
-        
+
         Returns:
             The registered feature class (enables decorator pattern)
         """
         if not hasattr(feature_class, 'metadata'):
             raise ValueError("Feature class must have metadata attribute")
-        
+
         name = feature_class.metadata['name']
         version = feature_class.metadata['version']
         feature_id = f"{name}:{version}"
-        
+
         # Store the feature
         if feature_id in self._features:
             raise ValueError(f"Feature {feature_id} already registered")
-        
+
         self._features[feature_id] = feature_class
-        
+
         # Add to group if specified
         if group:
             if group not in self._groups:
                 self._groups[group] = []
             self._groups[group].append(feature_id)
-        
+
         return feature_class
-    
+
     def get_feature(self, name, version=None):
         """
         Get a feature by name and optional version.
-        
+
         Args:
             name: Feature name
             version: Optional version, if None returns latest
-            
+
         Returns:
             An instance of the feature calculator
         """
@@ -361,21 +361,21 @@ class FeatureRegistry:
             if feature_id not in self._features:
                 raise ValueError(f"Feature {feature_id} not found")
             return self._features[feature_id]()
-        
+
         # Find latest version
         latest_version = None
         latest_feature = None
-        
+
         for feature_id, feature_class in self._features.items():
             feature_name, feature_version = feature_id.split(':')
             if feature_name == name:
                 if latest_version is None or feature_version > latest_version:
                     latest_version = feature_version
                     latest_feature = feature_class
-        
+
         if latest_feature is None:
             raise ValueError(f"Feature {name} not found")
-        
+
         return latest_feature()
 ```
 
@@ -409,4 +409,4 @@ This feature engineering implementation aligns with the specifications in the ar
 1. **Correctness**: 100% accuracy in feature calculation
 2. **Performance**: Feature computation time scales linearly with data size
 3. **Coverage**: All required model features implemented and tested
-4. **Usability**: Developers can add new features with minimal effort 
+4. **Usability**: Developers can add new features with minimal effort

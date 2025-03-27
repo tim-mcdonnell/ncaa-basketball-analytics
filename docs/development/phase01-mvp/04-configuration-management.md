@@ -147,23 +147,23 @@ def test_api_config_validation():
         "timeout": 30,
         "max_retries": 3
     }
-    
+
     invalid_config = {
         "base_url": "https://api.espn.com/v1/",
         "timeout": -5,  # Invalid: must be positive
         "max_retries": 3
     }
-    
+
     # Act & Assert - Valid config
     api_config = ApiConfig(**valid_config)
     assert api_config.base_url == "https://api.espn.com/v1/"
     assert api_config.timeout == 30
     assert api_config.max_retries == 3
-    
+
     # Act & Assert - Invalid config
     with pytest.raises(ValidationError) as excinfo:
         ApiConfig(**invalid_config)
-    
+
     # Verify the error message is clear
     assert "timeout must be positive" in str(excinfo.value)
 ```
@@ -253,7 +253,7 @@ class ApiConfig(BaseModel):
     base_url: str = Field(..., description="Base URL for the ESPN API")
     timeout: int = Field(30, description="Request timeout in seconds")
     max_retries: int = Field(3, description="Maximum number of retries")
-    
+
     @validator('timeout')
     def timeout_must_be_positive(cls, v):
         if v <= 0:
@@ -304,7 +304,7 @@ class LogLevel(str, Enum):
 
 class LoggingConfig(BaseModel):
     """Configuration for the logging system."""
-    
+
     level: LogLevel = Field(
         default=LogLevel.INFO,
         description="Default logging level"
@@ -325,7 +325,7 @@ class LoggingConfig(BaseModel):
         default="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         description="Log message format"
     )
-    
+
     @validator('file_path')
     def validate_file_path(cls, v, values):
         """Validate that file_path is set if file_enabled is True."""
@@ -335,7 +335,7 @@ class LoggingConfig(BaseModel):
 
 class DatabaseConfig(BaseModel):
     """Configuration for database connections."""
-    
+
     path: str = Field(
         ...,
         description="Path to DuckDB database file"
@@ -352,7 +352,7 @@ class DatabaseConfig(BaseModel):
         default=4096,
         description="Page size for the database"
     )
-    
+
     @validator('page_size')
     def page_size_power_of_two(cls, v):
         """Validate that page_size is a power of 2."""
@@ -362,7 +362,7 @@ class DatabaseConfig(BaseModel):
 
 class AppConfig(BaseModel):
     """Root configuration object for the application."""
-    
+
     version: str = Field(
         ...,
         description="Configuration schema version"
@@ -415,4 +415,4 @@ This configuration management implementation aligns with the specifications in t
 2. **Developer Experience**: Easy to understand and modify configuration
 3. **Flexibility**: Supports all required configuration scenarios
 4. **Security**: Sensitive values properly protected
-5. **Performance**: Minimal overhead for configuration loading 
+5. **Performance**: Minimal overhead for configuration loading

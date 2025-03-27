@@ -1,0 +1,38 @@
+{
+  "team": {
+    "id": "59",
+    "name": "Michigan",
+    "abbreviation": "MICH",
+    "location": "Ann Arbor",
+    "logo": "https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/130.png",
+    "color": "00274C",
+    "alternateColor": "FFCB05",
+    "record": {
+      "items": [
+        {
+          "summary": "15-10",
+          "stats": [
+            {
+              "name": "wins",
+              "value": 15
+            },
+            {
+              "name": "losses",
+              "value": 10
+            }
+          ]
+        }
+      ]
+    },
+    "links": [
+      {
+        "rel": ["schedule", "desktop"],
+        "href": "https://www.espn.com/mens-college-basketball/team/schedule/_/id/130"
+      },
+      {
+        "rel": ["roster", "desktop"],
+        "href": "https://www.espn.com/mens-college-basketball/team/roster/_/id/130"
+      }
+    ]
+  }
+}
