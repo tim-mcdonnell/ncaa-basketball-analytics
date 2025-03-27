@@ -7,7 +7,7 @@ import asyncio
 
 from src.data.api.espn_client import AsyncESPNClient
 from src.data.api.models.game import Game, GameStatus, TeamScore
-from src.data.api.exceptions import APIError, ResourceNotFoundError
+from src.data.api.exceptions import APIError, ResourceNotFoundError, ParseError
 from src.data.api.endpoints.common import get_async_context
 
 logger = logging.getLogger(__name__)
@@ -25,29 +25,33 @@ def _parse_date_string(date_str: str) -> datetime:
     return datetime.strptime(date_str, "%Y-%m-%d")
 
 
-def _parse_game_status(status_data: Dict[str, Any]) -> GameStatus:
+def _parse_game_status(game_data: Dict[str, Any]) -> GameStatus:
     """Parse game status from API response.
 
     Args:
-        status_data: Status data from API response
+        game_data: Game data from API response
 
     Returns:
         GameStatus object
     """
-    if not status_data:
-        return GameStatus()
+    status_data = {}
 
-    status_text = status_data.get("type", {}).get("description", "")
-    is_completed = status_data.get("type", {}).get("completed", False)
-    is_in_progress = status_data.get("type", {}).get("state", "").lower() == "in_progress"
-    is_scheduled = not (is_completed or is_in_progress)
+    # Check for competitions -> status -> type -> completed
+    competitions = game_data.get("competitions", [])
+    if competitions and len(competitions) > 0:
+        comp_status = competitions[0].get("status", {})
+        status_type = comp_status.get("type", {})
 
-    return GameStatus(
-        is_completed=is_completed,
-        is_in_progress=is_in_progress,
-        is_scheduled=is_scheduled,
-        status_text=status_text,
-    )
+        status_data["is_completed"] = status_type.get("completed", False)
+        status_data["status_text"] = status_type.get("description", "")
+
+    # Check top-level status as fallback
+    elif "status" in game_data and "type" in game_data["status"]:
+        status_type = game_data["status"].get("type", {})
+        status_data["is_completed"] = status_type.get("completed", False)
+        status_data["status_text"] = status_type.get("description", "")
+
+    return GameStatus(**status_data)
 
 
 def _parse_team_score(team_data: Dict[str, Any], is_home: bool = False) -> TeamScore:
@@ -90,44 +94,65 @@ def _create_game_from_response(game_data: Dict[str, Any]) -> Game:
 
     Returns:
         Game object
+
+    Raises:
+        ParseError: If required data is missing
     """
+    if not game_data:
+        raise ParseError("Game data is required")
+
     game_id = str(game_data.get("id", ""))
+    if not game_id:
+        raise ParseError("Game ID is required")
 
     # Parse date
     date_str = game_data.get("date", "")
     try:
-        game_date = datetime.fromisoformat(date_str.replace("Z", "+00:00"))
+        date_obj = datetime.fromisoformat(date_str.replace("Z", "+00:00"))
     except (ValueError, TypeError):
-        game_date = datetime.now()
+        date_obj = None
 
-    # Parse name/description
     name = game_data.get("name", "")
 
     # Parse status
-    status = _parse_game_status(game_data.get("status", {}))
+    status = _parse_game_status(game_data)
 
     # Parse teams
-    competitors = game_data.get("competitions", [{}])[0].get("competitors", [])
-    home_team_data = next((team for team in competitors if team.get("homeAway", "") == "home"), {})
-    away_team_data = next((team for team in competitors if team.get("homeAway", "") == "away"), {})
+    competitions = game_data.get("competitions", [])
+    if not competitions:
+        raise ParseError(f"No competitions found for game {game_id}")
 
-    home_team = _parse_team_score(home_team_data, is_home=True)
-    away_team = _parse_team_score(away_team_data, is_home=False)
+    competition = competitions[0]
+    competitors = competition.get("competitors", [])
+    if len(competitors) < 2:
+        raise ParseError(f"Not enough competitors found for game {game_id}")
+
+    # Find home and away teams
+    home_team = None
+    away_team = None
+
+    for competitor in competitors:
+        is_home = competitor.get("homeAway", "").lower() == "home"
+        team_score = _parse_team_score(competitor, is_home)
+
+        if is_home:
+            home_team = team_score
+        else:
+            away_team = team_score
+
+    # If home/away not specified, use first as home, second as away
+    if home_team is None and away_team is None and len(competitors) >= 2:
+        home_team = _parse_team_score(competitors[0], True)
+        away_team = _parse_team_score(competitors[1], False)
 
     # Parse venue and attendance
-    venue = None
-    attendance = None
-    if competitions := game_data.get("competitions", []):
-        if competitions and isinstance(competitions[0], dict):
-            venue_data = competitions[0].get("venue", {})
-            venue = venue_data.get("fullName", None)
-            attendance_str = competitions[0].get("attendance", None)
-            if attendance_str and str(attendance_str).isdigit():
-                attendance = int(attendance_str)
+    venue = competition.get("venue", {}).get("fullName", None)
+    attendance = competition.get("attendance", None)
 
+    # Create Game object
     return Game(
         id=game_id,
-        date=game_date,
+        date=date_obj,
         name=name,
         status=status,
         home_team=home_team,

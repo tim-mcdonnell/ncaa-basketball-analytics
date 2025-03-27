@@ -101,14 +101,14 @@ class TestPlayersEndpoint:
         assert len(result) == 3
         assert result[0].id == "101"
         assert result[0].full_name == "Player One"
-        assert result[0].jersey is None
-        assert result[0].position is None
+        assert result[0].jersey == ""
+        assert result[0].position == ""
         assert result[1].id == "102"
-        assert result[1].jersey is None
+        assert result[1].jersey == ""
         assert result[1].position == "Forward"
         assert result[2].id == "103"
         assert result[2].jersey == "3"
-        assert result[2].position is None
+        assert result[2].position == ""
 
     @pytest.mark.asyncio
     @patch("src.data.api.espn_client.AsyncESPNClient.get_team_players")

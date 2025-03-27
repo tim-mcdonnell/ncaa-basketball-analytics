@@ -15,7 +15,7 @@ class TestGameModel:
             "id": "401516161",
             "date": "2023-11-06T23:30Z",
             "name": "Michigan vs Michigan State",
-            "status": {"completed": True, "description": "Final"},
+            "status": {"is_completed": True, "status_text": "Final"},
             "home_team": {"team_id": "59", "team_name": "Michigan", "score": 75},
             "away_team": {"team_id": "127", "team_name": "Michigan State", "score": 70},
         }
@@ -27,7 +27,7 @@ class TestGameModel:
         assert game.id == "401516161"
         assert game.name == "Michigan vs Michigan State"
         assert isinstance(game.date, datetime)
-        assert game.status.completed is True
+        assert game.status.is_completed is True
         assert game.status.description == "Final"
         assert game.home_team.team_id == "59"
         assert game.home_team.team_name == "Michigan"
@@ -104,14 +104,14 @@ class TestGameModel:
     def test_game_status_validation(self):
         """Test GameStatus model validation."""
         # Arrange
-        status_data = {"completed": True, "description": "Final"}
+        status_data = {"is_completed": True, "status_text": "Final"}
 
         # Act
         status = GameStatus(**status_data)
 
         # Assert
-        assert status.completed is True
-        assert status.description == "Final"
+        assert status.is_completed is True
+        assert status.status_text == "Final"
 
     def test_game_status_default_values(self):
         """Test GameStatus default values."""

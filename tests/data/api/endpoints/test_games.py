@@ -92,7 +92,7 @@ class TestGamesEndpoint:
         assert result[0].home_team.score == 75
         assert result[0].away_team.team_id == "2"
         assert result[0].away_team.score == 70
-        assert result[0].status.completed is True
+        assert result[0].status.is_completed is True
 
     @pytest.mark.asyncio
     @patch("src.data.api.espn_client.AsyncESPNClient.get_game")
@@ -139,7 +139,7 @@ class TestGamesEndpoint:
         assert result.away_team.team_name == "Michigan State"
         assert result.away_team.score == 70
         assert result.away_team.is_home is False
-        assert result.status.completed is True
+        assert result.status.is_completed is True
 
     @pytest.mark.asyncio
     @patch("src.data.api.espn_client.AsyncESPNClient.get_games")

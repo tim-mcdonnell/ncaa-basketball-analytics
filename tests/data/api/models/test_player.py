@@ -12,13 +12,12 @@ class TestPlayerModel:
         # Arrange
         player_data = {
             "id": "101",
-            "name": "Player One",
+            "full_name": "Player One",
             "jersey": "1",
             "position": "Guard",
             "team_id": "59",
-            "height": "6'2\"",
-            "weight": "185",
-            "year": "Senior",
+            "team_name": "Michigan",
+            "headshot": "https://example.com/headshot.jpg",
         }
 
         # Act
@@ -26,37 +25,35 @@ class TestPlayerModel:
 
         # Assert
         assert player.id == "101"
-        assert player.name == "Player One"
+        assert player.full_name == "Player One"
         assert player.jersey == "1"
         assert player.position == "Guard"
         assert player.team_id == "59"
-        assert player.height == "6'2\""
-        assert player.weight == "185"
-        assert player.year == "Senior"
+        assert player.team_name == "Michigan"
+        assert player.headshot == "https://example.com/headshot.jpg"
 
     def test_player_model_validation_minimal_data(self):
         """Test Player model with minimal required data."""
         # Arrange
-        player_data = {"id": "101", "name": "Player One"}
+        player_data = {"id": "101", "full_name": "Player One"}
 
         # Act
         player = Player(**player_data)
 
         # Assert
         assert player.id == "101"
-        assert player.name == "Player One"
+        assert player.full_name == "Player One"
         assert player.jersey is None
         assert player.position is None
         assert player.team_id is None
-        assert player.height is None
-        assert player.weight is None
-        assert player.year is None
+        assert player.team_name is None
+        assert player.headshot is None
 
     def test_player_model_validation_missing_required(self):
         """Test Player model fails with missing required fields."""
         # Arrange
         # Missing id
-        player_data = {"name": "Player One", "jersey": "1", "position": "Guard"}
+        player_data = {"full_name": "Player One", "jersey": "1", "position": "Guard"}
 
         # Act & Assert
         with pytest.raises(ValidationError):
@@ -74,31 +71,28 @@ class TestPlayerModel:
         # Arrange
         player = Player(
             id="101",
-            name="Player One",
+            full_name="Player One",
             jersey="1",
             position="Guard",
             team_id="59",
-            height="6'2\"",
-            weight="185",
-            year="Senior",
+            team_name="Michigan",
+            headshot="https://example.com/headshot.jpg",
         )
 
         # Assert - this test will need to be updated if any custom methods are added
-        assert player.dict()["id"] == "101"
-        assert player.dict()["name"] == "Player One"
+        assert player.model_dump()["id"] == "101"
+        assert player.model_dump()["full_name"] == "Player One"
 
     def test_player_model_optional_fields(self):
         """Test Player model handles optional fields correctly."""
         # Arrange & Act
-        player = Player(id="101", name="Player One", jersey="1")
+        player = Player(id="101", full_name="Player One", jersey="1")
 
         # Act - update some fields
-        player_dict = player.dict()
-        player_dict["position"] = "Guard"
-        updated_player = Player(**player_dict)
+        updated_player = player.copy(update={"position": "Guard"})
 
         # Assert
         assert updated_player.id == "101"
-        assert updated_player.name == "Player One"
+        assert updated_player.full_name == "Player One"
         assert updated_player.jersey == "1"
         assert updated_player.position == "Guard"
