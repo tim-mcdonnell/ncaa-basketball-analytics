@@ -1,148 +1,161 @@
-# Configuration Management
+---
+title: Configuration Management Architecture
+description: Architectural overview of the NCAA Basketball Analytics configuration system
+---
 
-## Overview
+# Configuration Management Architecture
 
-This document outlines how configuration is managed in the NCAA Basketball Analytics project using YAML files and Pydantic models. This approach provides both flexibility and type safety.
+This document describes the architectural design and implementation details of the configuration management system in the NCAA Basketball Analytics project.
 
-## Configuration Architecture
+## System Overview
 
-The project uses a hierarchical configuration system:
+The configuration system is designed to provide a flexible, type-safe, and environment-aware way to manage application settings. It follows these core architectural principles:
 
-```mermaid
-graph TD
-    A[YAML Config Files] --> B[Pydantic Models]
-    B --> C[Validated Settings]
-    C --> D[Application Components]
-    E[Environment Variables] -.-> B
+- **Separation of Concerns**: Configuration definition is separated from loading and validation
+- **Type Safety**: All configuration values are validated against Pydantic models
+- **Environment Awareness**: Different environments can have different configuration values
+- **Extensibility**: The system can be extended with new configuration sections without changing the core
+
+## Component Architecture
+
+![Configuration System Architecture](../assets/config-architecture.png)
+
+### Core Components
+
+1. **Config Class**: Central entry point that orchestrates loading and validation
+2. **Config Models**: Pydantic models defining the structure and validation rules
+3. **Loaders**: Components responsible for loading configuration from different sources
+4. **Environment Manager**: Determines and manages the current environment
+
+## Class Structure
+
+```
+ncaa_basketball.config/
+├── __init__.py            # Public API exports
+├── core.py                # Core Config class and loading logic
+├── models.py              # Pydantic configuration models
+├── environment.py         # Environment management
+├── loaders.py             # Configuration loading from files and environment
+└── validators.py          # Custom validators for configuration values
 ```
 
-Configuration is managed through:
+### Key Classes
 
-1. **YAML Files**: Static configuration stored in version-controlled files
-2. **Pydantic Models**: Type validation and default values
-3. **Environment Variables**: Runtime overrides for deployment-specific settings
+#### `Config` Class
 
-## Configuration Files
+The `Config` class is the main entry point for the configuration system:
 
-Configuration files are stored in the `config/` directory and organized by component:
+```python
+class Config:
+    """Central configuration class that manages loading and access to configuration."""
 
-| File | Purpose |
-|------|---------|
-| `api_config.yaml` | ESPN API connection settings |
-| `db_config.yaml` | Database configuration |
-| `feature_config.yaml` | Feature engineering settings |
-| `model_config.yaml` | Model training parameters |
+    @classmethod
+    def load(cls, env=None, config_dir=None):
+        """Load configuration for the specified environment."""
+        # Implementation
 
-## Example Configuration
+    def get(self, path, default=None):
+        """Get a configuration value by path."""
+        # Implementation
 
-### API Configuration
-
-The `config/api_config.yaml` file configures API access:
-
-```yaml
-espn_api:
-  base_url: "https://sports.core.api.espn.com/v2/sports/basketball/leagues/mens-college-basketball"
-  request_timeout: 30
-  rate_limit:
-    requests_per_minute: 60
-    retry_attempts: 3
-    backoff_factor: 2.0
-  endpoints:
-    teams: "/seasons/{year}/teams"
-    events: "/seasons/{year}/events"
-    athletes: "/seasons/{year}/athletes"
-  seasons:
-    start_year: 2005
-    current_year: 2025
+    def __getattr__(self, name):
+        """Support for dot notation access."""
+        # Implementation
 ```
 
-### Database Configuration
+#### Configuration Models
 
-The `config/db_config.yaml` file configures database settings:
+Pydantic models define the structure and validation rules:
 
-```yaml
-duckdb:
-  database_path: "data/ncaa_basketball.duckdb"
-  storage:
-    parquet_directory: "data/processed/"
-    use_compression: true
-    compression_method: "zstd"
-  performance:
-    memory_limit: "4GB"
-    threads: 4
+```python
+class ApiConfig(BaseModel):
+    """API configuration settings."""
+    base_url: str
+    timeout: int = 30
+    rate_limit: int = 100
+
+class DatabaseConfig(BaseModel):
+    """Database connection settings."""
+    host: str
+    port: int
+    name: str
+    user: str
+    password: str = ""
+
+class RootConfig(BaseModel):
+    """Root configuration model."""
+    version: str
+    api: ApiConfig
+    database: DatabaseConfig
+    features: FeaturesConfig
+    models: ModelsConfig
+    dashboard: DashboardConfig
 ```
 
-### Feature Configuration
+## Data Flow
 
-The `config/feature_config.yaml` file configures feature engineering:
+1. **Configuration Loading**:
+   - The system first loads the base configuration
+   - Then it loads environment-specific overrides
+   - Finally, it applies environment variable overrides
 
-```yaml
-features:
-  storage:
-    directory: "data/features/"
-    format: "parquet"
-  computation:
-    window_sizes: [1, 3, 5, 10, 15, 30]
-    recalculation_frequency: "daily"
-  groups:
-    team_stats:
-      enabled: true
-      lookback_periods: [5, 10, 20]
-    player_stats:
-      enabled: true
-      lookback_periods: [5, 10, 20]
-```
+2. **Validation Process**:
+   - Raw configuration data is validated against Pydantic models
+   - Type coercion is applied where possible
+   - Validation errors are collected and reported
 
-## Validation with Pydantic
+3. **Configuration Access**:
+   - Configuration values can be accessed via dot notation
+   - Values can also be accessed via dictionary-style lookup
+   - Path-based access is supported for deep configuration nesting
 
-Configuration values are validated using Pydantic models that define:
+## Version Compatibility
 
-1. **Types**: Ensuring values have the correct data type
-2. **Defaults**: Providing sensible defaults when values are missing
-3. **Constraints**: Enforcing value ranges and relationships
-4. **Derived Values**: Calculating values based on other settings
+The configuration system includes version compatibility checking:
 
-Pydantic models provide both validation and documentation for all configuration options, ensuring that invalid configurations are caught early in the development process.
+1. Each configuration file includes a version number
+2. The system checks that the version is compatible with the expected version
+3. Minor version increases are backward compatible
+4. Major version increases require explicit migration
 
-## Environment Variable Overrides
+## Environment Variable Integration
 
-The configuration system supports overriding settings through environment variables:
+Environment variables can override configuration values:
 
-1. **Naming Convention**: `NCAA_SECTION_KEY` (e.g., `NCAA_DB_DATABASE_PATH`)
-2. **Precedence**: Environment variables take precedence over file-based configuration
-3. **Type Conversion**: Values are converted to the appropriate type based on the Pydantic model
+1. Environment variables with the prefix `NCAA_BASKETBALL_` are recognized
+2. The remainder of the variable name is converted to a configuration path
+3. Values are automatically coerced to the expected type when possible
 
-!!! tip "Production Deployments"
-    For production deployments, use environment variables to configure:
+## Error Handling
 
-    * API credentials
-    * Database connection strings
-    * Resource limits (memory, threads)
-    * Logging levels
+The configuration system provides detailed error messages:
 
-## Best Practices
+1. Validation errors include the path to the invalid value
+2. Type errors explain what type was expected vs. received
+3. Missing required values are clearly identified
+4. Version incompatibilities explain the version mismatch
 
-When working with configuration:
+## Extension Points
 
-1. **Validate Early**: Validate configuration at application startup
-2. **Fail Fast**: Raise clear errors for invalid configuration
-3. **Document Options**: Include comments in YAML files explaining options
-4. **Default Wisely**: Provide reasonable defaults that work for development
-5. **Version Control**: Always commit template configuration files with sensible defaults
-6. **Separate Secrets**: Keep sensitive information in environment variables
+The configuration system can be extended in several ways:
 
-!!! warning "Sensitive Data"
-    Never store API keys, passwords, or other sensitive information in configuration files that are committed to version control.
+1. **New Configuration Sections**: Add new models to `models.py`
+2. **Custom Validators**: Add custom validators in `validators.py`
+3. **Additional Sources**: Extend the loading system in `loaders.py`
+4. **Caching**: Implement configuration caching for performance
 
-## Configuration Updates
+## Dependencies
 
-When updating configuration:
+The configuration system has minimal dependencies:
 
-1. Update the YAML file with new options
-2. Update the corresponding Pydantic model with new fields
-3. Add validators for any constraints
-4. Update documentation to reflect new options
-5. Provide migration guidance for existing deployments
+- **Pydantic**: For data validation and settings management
+- **PyYAML**: For loading YAML configuration files
+- **Python 3.8+**: For type hinting and modern language features
 
-!!! note "Configuration Freedom"
-    This document provides guidelines for the configuration architecture. Developers may extend this system as needed while maintaining the core principles of validation and separation of concerns.
+## Performance Considerations
+
+The configuration system is optimized for startup performance:
+
+1. Configuration is loaded once at application startup
+2. Pydantic models are used for efficient validation
+3. Dot notation access is optimized for frequent lookups
