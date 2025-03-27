@@ -14,6 +14,52 @@ dependencies = [
     "mlflow>=2.21.1",
     "polars>=1.26.0",
     "pre-commit>=4.2.0",
+    "pydantic>=2.10.6",
+    "pytest>=8.3.5",
+    "pytest-asyncio>=0.26.0",
+    "ruff>=0.11.2",
     "tenacity>=9.0.0",
     "torch>=2.6.0",
 ]
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+# Select basic rule sets - core linting
+[lint]
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "I",   # isort
+    "UP",  # pyupgrade (modernize Python code)
+    "B",   # flake8-bugbear (detect potential bugs)
+    "C4",  # flake8-comprehensions (better list/dict comprehensions)
+    "PT",  # flake8-pytest-style (good pytest practices)
+    "RUF", # Ruff-specific rules
+]
+
+# Ignore some overly strict rules
+ignore = [
+    "E501",  # line too long (let the formatter handle this)
+    "B008",  # function call in default argument (often used with FastAPI/Pydantic)
+]
+
+# Allow autofix for all enabled rules
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude files/directories
+exclude = [
+    ".git",
+    ".venv",
+    "__pycache__",
+    "*.ipynb",  # Skip notebooks
+]
+
+# Specific rule configurations
+[lint.isort]
+known-first-party = ["ncaa_basketball_analytics"]  # Adjust to your project's main package name
+
+[lint.per-file-ignores]
+"**/__init__.py" = ["F401"]  # Ignore unused imports in __init__.py files
+"**/tests/**" = ["PT004"]    # Allow fixtures without explicit return annotation

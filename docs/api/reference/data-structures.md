@@ -41,7 +41,7 @@ List endpoints return paginated results with a consistent structure. The paginat
 
 !!! tip "Navigation"
     To navigate through pages, use the `page` query parameter, for example: `?page=2`
-    
+
     To change the number of items per page, use the `limit` query parameter, for example: `?limit=50`
 
 ## Team Object
@@ -414,4 +414,4 @@ Example of basic event information:
 - `standings`: Reference to group standings
 - `isConference`: Boolean indicating if the group is a conference
 - `slug`: URL-friendly identifier
-- `teams`: Reference to teams in the group 
+- `teams`: Reference to teams in the group

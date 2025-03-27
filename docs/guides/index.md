@@ -52,4 +52,4 @@ When debugging data pipeline issues:
 3. Verify configuration settings
 4. Check for data quality issues in the raw inputs
 
-For more detailed guidance, refer to the specific guides in this section. 
+For more detailed guidance, refer to the specific guides in this section.

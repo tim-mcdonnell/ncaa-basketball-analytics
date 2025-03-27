@@ -1,0 +1,104 @@
+{
+  "id": "401516161",
+  "date": "2023-11-06T23:30Z",
+  "name": "Michigan vs Michigan State",
+  "shortName": "MICH @ MSU",
+  "competitions": [
+    {
+      "id": "401516161",
+      "competitors": [
+        {
+          "id": "1",
+          "team": {
+            "id": "59",
+            "name": "Michigan",
+            "abbreviation": "MICH",
+            "logo": "https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/130.png"
+          },
+          "homeAway": "home",
+          "score": "45",
+          "leaders": [
+            {
+              "name": "points",
+              "displayName": "Points",
+              "leaders": [
+                {
+                  "displayValue": "15",
+                  "athlete": {
+                    "id": "101",
+                    "fullName": "Player One"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "2",
+          "team": {
+            "id": "127",
+            "name": "Michigan State",
+            "abbreviation": "MSU",
+            "logo": "https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/127.png"
+          },
+          "homeAway": "away",
+          "score": "42",
+          "leaders": [
+            {
+              "name": "points",
+              "displayName": "Points",
+              "leaders": [
+                {
+                  "displayValue": "12",
+                  "athlete": {
+                    "id": "201",
+                    "fullName": "Player Two"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "venue": {
+        "fullName": "Crisler Center",
+        "address": {
+          "city": "Ann Arbor",
+          "state": "MI"
+        }
+      },
+      "status": {
+        "type": {
+          "completed": false,
+          "description": "In Progress",
+          "state": "in",
+          "detail": "2nd Half - 10:25"
+        }
+      },
+      "boxscores": [
+        {
+          "team": {
+            "id": "59"
+          },
+          "statistics": [
+            {"name": "rebounds", "displayValue": "20"},
+            {"name": "assists", "displayValue": "8"},
+            {"name": "fieldGoalsAttempted", "displayValue": "35"},
+            {"name": "fieldGoalsMade", "displayValue": "18"}
+          ]
+        },
+        {
+          "team": {
+            "id": "127"
+          },
+          "statistics": [
+            {"name": "rebounds", "displayValue": "18"},
+            {"name": "assists", "displayValue": "6"},
+            {"name": "fieldGoalsAttempted", "displayValue": "32"},
+            {"name": "fieldGoalsMade", "displayValue": "17"}
+          ]
+        }
+      ]
+    }
+  ]
+}

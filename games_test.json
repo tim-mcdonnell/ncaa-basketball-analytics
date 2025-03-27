@@ -1,0 +1,52 @@
+[
+  {
+    "id": "401596929",
+    "date": "2024-03-02T02:00:00+00:00",
+    "name": "Dayton Flyers at Loyola Chicago Ramblers",
+    "status": {
+      "is_completed": true,
+      "is_in_progress": false,
+      "is_scheduled": true,
+      "status_text": "Final"
+    },
+    "home_team": {
+      "team_id": "2350",
+      "team_name": "Ramblers",
+      "score": 77,
+      "is_home": true
+    },
+    "away_team": {
+      "team_id": "2168",
+      "team_name": "Flyers",
+      "score": 72,
+      "is_home": false
+    },
+    "venue": "Gentile Arena",
+    "attendance": 4557
+  },
+  {
+    "id": "401594458",
+    "date": "2024-03-02T04:00:00+00:00",
+    "name": "Air Force Falcons at Utah State Aggies",
+    "status": {
+      "is_completed": true,
+      "is_in_progress": false,
+      "is_scheduled": true,
+      "status_text": "Final"
+    },
+    "home_team": {
+      "team_id": "328",
+      "team_name": "Aggies",
+      "score": 72,
+      "is_home": true
+    },
+    "away_team": {
+      "team_id": "2005",
+      "team_name": "Falcons",
+      "score": 60,
+      "is_home": false
+    },
+    "venue": "Dee Glen Smith Spectrum",
+    "attendance": 9194
+  }
+]

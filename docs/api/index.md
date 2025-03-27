@@ -62,7 +62,7 @@ The project primarily uses the ESPN API for college basketball data. This API pr
 
 Key endpoints are documented in the [ESPN Endpoints](espn-endpoints.md) page, including:
 - Teams endpoint
-- Games/Events endpoint 
+- Games/Events endpoint
 - Players/Athletes endpoint
 - Rankings endpoint
 - Statistics endpoint

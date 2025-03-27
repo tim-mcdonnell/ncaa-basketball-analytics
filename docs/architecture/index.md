@@ -78,4 +78,4 @@ These documents represent the current state of the architecture, which will evol
 - **Explainable**: Clear in its design decisions and trade-offs
 
 !!! note "Documentation Updates"
-    As the architecture evolves, these documents will be updated to reflect changes. The documentation should be considered a living resource that grows with the project. 
+    As the architecture evolves, these documents will be updated to reflect changes. The documentation should be considered a living resource that grows with the project.

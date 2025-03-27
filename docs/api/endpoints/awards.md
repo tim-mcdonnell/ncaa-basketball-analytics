@@ -240,4 +240,4 @@ Award data may not be available until officially announced for a given season. T
   - `athlete`: Reference to the athlete who received the award
   - `team`: Reference to the team the athlete represented
   - `year`: Season year when the award was given
-  - `seasonType`: Season type (typically Regular Season) 
+  - `seasonType`: Season type (typically Regular Season)

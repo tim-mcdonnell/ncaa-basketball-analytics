@@ -101,4 +101,4 @@ This would retrieve up to 100 events on March 1, 2025, involving teams from grou
 - Some parameters may have different effects depending on the endpoint.
 - Invalid parameter values typically result in a 400 Bad Request response.
 - Parameter names are case-sensitive.
-- Boolean parameters accept `true` or `false` values (lowercase). 
+- Boolean parameters accept `true` or `false` values (lowercase).

@@ -91,4 +91,4 @@ For detailed information about specific endpoints, select a category from the na
 - URL structure and parameters
 - Response format and field descriptions
 - Example requests and responses
-- Usage notes and limitations 
+- Usage notes and limitations

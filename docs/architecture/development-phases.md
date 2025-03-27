@@ -9,16 +9,16 @@ gantt
     title NCAA Basketball Analytics Development Roadmap
     dateFormat  YYYY-MM
     section Development Phases
-    Phase 1 - MVP Implementation    :a1, 2024-03, 3M
-    Phase 2 - Feature Engineering   :a2, after a1, 3M
-    Phase 3 - Model Optimization    :a3, after a2, 2M
-    Phase 4 - Dashboard Enhancement :a4, after a3, 2M
-    Phase 5 - Tournament Predictions:a5, after a4, 2M
+    Phase 01 - MVP Implementation    :a1, 2024-03, 3M
+    Phase 02 - Feature Engineering   :a2, after a1, 3M
+    Phase 03 - Model Optimization    :a3, after a2, 2M
+    Phase 04 - Dashboard Enhancement :a4, after a3, 2M
+    Phase 05 - Tournament Predictions:a5, after a4, 2M
 ```
 
 ## Development Milestones
 
-### Phase 1: Minimum Viable Product
+### Phase 01: Minimum Viable Product
 
 **Goal**: Establish foundational architecture with basic end-to-end functionality.
 
@@ -35,7 +35,7 @@ gantt
 - All core architectural components integrated
 - Test coverage for critical components
 
-### Phase 2: Comprehensive Feature Engineering
+### Phase 02: Comprehensive Feature Engineering
 
 **Goal**: Expand the feature set to capture the complexity of basketball performance.
 
@@ -52,7 +52,7 @@ gantt
 - Feature versioning and dependency management working
 - Improved model performance with new features
 
-### Phase 3: Model Optimization
+### Phase 03: Model Optimization
 
 **Goal**: Enhance prediction accuracy through advanced modeling techniques.
 
@@ -69,7 +69,7 @@ gantt
 - Robust model validation process
 - Model versioning and deployment pipeline
 
-### Phase 4: Visualization Enhancement
+### Phase 04: Visualization Enhancement
 
 **Goal**: Create comprehensive, interactive visualizations for analysis and insights.
 
@@ -86,7 +86,7 @@ gantt
 - Effective visualization of prediction insights
 - Dashboard performance meets responsiveness targets
 
-### Phase 5: Tournament Predictions
+### Phase 05: Tournament Predictions
 
 **Goal**: Extend the system to model NCAA tournament performance and bracket predictions.
 
@@ -128,11 +128,11 @@ For this project, we recommend a hybrid approach to task management:
 ### GitHub Issues Structure
 
 ```
-- Phase 1: MVP Implementation
+- Phase 01: MVP Implementation
   - Issue #1: Set up ESPN API client
   - Issue #2: Implement basic DuckDB schema
   - ...
-- Phase 2: Feature Engineering
+- Phase 02: Feature Engineering
   - Issue #25: Implement rolling average features
   - ...
 ```
@@ -141,11 +141,11 @@ For this project, we recommend a hybrid approach to task management:
 
 ```
 docs/development/
-├── phase1-mvp/
+├── phase01-mvp/
 │   ├── 01-api-integration.md
 │   ├── 02-data-storage.md
 │   └── ...
-├── phase2-features/
+├── phase02-features/
 │   ├── 01-team-metrics.md
 │   └── ...
 └── ...
@@ -167,11 +167,11 @@ To track progress against these milestones:
 
 Each development phase includes corresponding test development:
 
-- **Phase 1**: Basic unit tests and integration tests for core functionality
-- **Phase 2**: Feature validation tests and data quality checks
-- **Phase 3**: Model performance tests and evaluation metrics
-- **Phase 4**: UI/UX tests and dashboard functionality testing
-- **Phase 5**: Tournament simulation and prediction accuracy testing
+- **Phase 01**: Basic unit tests and integration tests for core functionality
+- **Phase 02**: Feature validation tests and data quality checks
+- **Phase 03**: Model performance tests and evaluation metrics
+- **Phase 04**: UI/UX tests and dashboard functionality testing
+- **Phase 05**: Tournament simulation and prediction accuracy testing
 
 ## Getting Started
 
@@ -180,4 +180,4 @@ To begin work on a specific phase:
 1. Review the phase's key deliverables in this document
 2. Check GitHub issues assigned to the relevant milestone
 3. Refer to detailed specifications in the `docs/development/` directory
-4. Follow the [project workflow](project-structure.md) for development 
+4. Follow the [project workflow](project-structure.md) for development

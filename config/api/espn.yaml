@@ -1,0 +1,17 @@
+espn:
+  base_url: "https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball"
+  timeout: 30
+  retries:
+    max_attempts: 3
+    min_wait: 1.0
+    max_wait: 10.0
+    factor: 2.0
+  rate_limiting:
+    initial: 10
+    min_limit: 1
+    max_limit: 50
+    success_threshold: 10
+    failure_threshold: 3
+  metadata:
+    dir: "data/metadata"
+    file: "espn_metadata.json"

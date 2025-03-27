@@ -555,4 +555,4 @@ Retrieves events specific to the NCAA tournament during the postseason.
 **Example Request:**
 ```bash
 curl -s "https://sports.core.api.espn.com/v2/sports/basketball/leagues/mens-college-basketball/seasons/2024/types/3/groups/100/events?limit=10" | jq
-``` 
+```
