@@ -1,6 +1,61 @@
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from datetime import datetime
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
+
+
+class GameStatusType(BaseModel):
+    """Game status type information."""
+
+    completed: bool = False
+    description: str = "Scheduled"
+    state: Optional[str] = None
+    detail: Optional[str] = None
+
+
+class GameStatus(BaseModel):
+    """Game status information."""
+
+    type: GameStatusType = Field(default_factory=GameStatusType)
+
+
+class TeamCompetitor(BaseModel):
+    """Team competitor in a game."""
+
+    id: str
+    team: Dict[str, Any]
+    homeAway: str
+    score: Optional[str] = None
+
+
+class Competition(BaseModel):
+    """Game competition details."""
+
+    id: str
+    competitors: List[TeamCompetitor]
+    status: GameStatus
+    venue: Optional[Dict[str, Any]] = None
+
+
+class GameResponse(BaseModel):
+    """
+    Pydantic model for ESPN game API response validation.
+
+    Includes validation for handling inconsistent formats.
+    """
+
+    id: str
+    date: str
+    name: str
+    competitions: List[Competition]
+
+    @validator("competitions", each_item=True, pre=True)
+    def validate_competitors(cls, v):
+        """Validate competitors data."""
+        if "competitors" in v:
+            for comp in v["competitors"]:
+                if "score" not in comp:
+                    comp["score"] = None
+        return v
 
 
 class GameStatus(BaseModel):

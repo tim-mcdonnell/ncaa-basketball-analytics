@@ -1,0 +1,15 @@
+{
+  "player": {
+    "id": "101",
+    "fullName": "Player One",
+    "jersey": "1",
+    "height": "6'2\"",
+    "weight": "185",
+    "class": {"name": "Senior"},
+    "team": {
+      "id": "59",
+      "name": "Michigan",
+      "abbreviation": "MICH"
+    }
+  }
+}

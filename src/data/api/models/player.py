@@ -1,5 +1,30 @@
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, Field
+
+
+class Position(BaseModel):
+    """Player position."""
+
+    name: str
+
+
+class PlayerResponse(BaseModel):
+    """
+    Pydantic model for ESPN player API response validation.
+
+    Includes validation for handling inconsistent formats.
+    """
+
+    id: str
+    fullName: str
+    jersey: Optional[str] = None
+    height: Optional[str] = None
+    weight: Optional[str] = None
+    position: Optional[Position] = None
+    team: Optional[Dict[str, Any]] = None
+
+    class Config:
+        extra = "allow"  # Allow extra fields
 
 
 class PlayerStats(BaseModel):

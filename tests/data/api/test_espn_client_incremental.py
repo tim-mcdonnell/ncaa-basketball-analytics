@@ -34,11 +34,15 @@ class TestESPNClientIncremental:
             rate_limit_initial=5,
             rate_limit_min=1,
             rate_limit_max=10,
+            max_retries=2,
+            retry_min_wait=0.1,
+            retry_max_wait=0.5,
+            retry_factor=2.0,
+            base_url="https://test.example.com",
         )
-        # Mock the _handle_response method to avoid actual HTTP requests
-        client._handle_response = AsyncMock()
-        # Mock the get method to avoid actual HTTP requests
+        # Mock the get and get_with_enhanced_recovery methods to avoid actual HTTP requests
         client.get = AsyncMock()
+        client.get_with_enhanced_recovery = AsyncMock()
         # Mock the session to avoid context manager errors
         client.session = AsyncMock()
         return client
@@ -65,7 +69,7 @@ class TestESPNClientIncremental:
         client.get.return_value = mock_response
 
         # Call with incremental flag
-        teams = await client.get_all_teams(incremental=True)
+        teams = await client.get_teams(incremental=True)
 
         # Should call API since no cached data
         client.get.assert_called_once_with("/teams")
@@ -94,7 +98,7 @@ class TestESPNClientIncremental:
             json.dump(test_metadata, f)
 
         # Call with incremental flag
-        teams = await client.get_all_teams(incremental=True)
+        teams = await client.get_teams(incremental=True)
 
         # Should not call API due to cached data
         client.get.assert_not_called()
@@ -108,13 +112,13 @@ class TestESPNClientIncremental:
         team_id = "123"
         team_data = {"name": "Test Team", "abbreviation": "TEST"}
 
-        client.get.return_value = {"team": team_data}
+        client.get_with_enhanced_recovery.return_value = {"team": team_data}
 
         # Call get_team
-        result = await client.get_team(team_id)
+        result = await client.get_team_details(team_id)
 
         # Should call API
-        client.get.assert_called_once_with(f"/teams/{team_id}")
+        client.get_with_enhanced_recovery.assert_called_once_with(f"/teams/{team_id}")
 
         # Should return team data
         assert result == team_data
@@ -135,13 +139,16 @@ class TestESPNClientIncremental:
         team_id = "123"
         games_data = {"events": [{"id": "game1"}, {"id": "game2"}]}
 
-        client.get.return_value = games_data
+        # Mock the get_with_enhanced_recovery method
+        client.get_with_enhanced_recovery.return_value = games_data
 
         # Call get_games with incremental
         result = await client.get_games(date_str=date_str, team_id=team_id, incremental=True)
 
-        # Should call API
-        client.get.assert_called_once()
+        # Should call API with enhanced recovery
+        client.get_with_enhanced_recovery.assert_called_once_with(
+            "/scoreboard", {"dates": date_str, "team": team_id, "limit": "100"}
+        )
 
         # Should return games
         assert result == games_data["events"]
@@ -155,7 +162,7 @@ class TestESPNClientIncremental:
         assert "resources" in metadata["games"]
 
         # Resource ID should include date and team ID
-        resource_id = f"{date_str}-{team_id}-all"
+        resource_id = f"{date_str}-{team_id}"
         assert resource_id in metadata["games"]["resources"]
 
     @pytest.mark.asyncio
@@ -164,13 +171,14 @@ class TestESPNClientIncremental:
         team_id = "123"
         players_data = [{"id": "p1", "name": "Player 1"}, {"id": "p2", "name": "Player 2"}]
 
-        client.get.return_value = {"team": {"athletes": players_data}}
+        # Mock the get_with_enhanced_recovery method
+        client.get_with_enhanced_recovery.return_value = {"team": {"athletes": players_data}}
 
         # Call get_team_players
         result = await client.get_team_players(team_id)
 
-        # Should call API
-        client.get.assert_called_once_with(f"/teams/{team_id}/roster")
+        # Should call API with enhanced recovery
+        client.get_with_enhanced_recovery.assert_called_once_with(f"/teams/{team_id}/roster")
 
         # Should return players
         assert result == players_data
@@ -183,6 +191,6 @@ class TestESPNClientIncremental:
         assert "players" in metadata
         assert "resources" in metadata["players"]
 
-        # Resource ID should include team ID and "players" suffix
-        resource_id = f"{team_id}-players"
+        # Resource ID should be properly formatted for team players
+        resource_id = f"team_{team_id}"
         assert resource_id in metadata["players"]["resources"]

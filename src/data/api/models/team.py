@@ -1,5 +1,31 @@
 from typing import List, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
+
+
+class TeamResponse(BaseModel):
+    """
+    Pydantic model for ESPN team API response validation.
+
+    Includes validation for handling inconsistent record formats.
+    """
+
+    id: str
+    name: str
+    abbreviation: Optional[str] = ""
+    location: Optional[str] = ""
+    logo: Optional[str] = None
+    record: Optional[str] = "0-0"
+
+    @validator("record", pre=True)
+    def extract_record_summary(cls, v):
+        """Extract record summary from nested structure."""
+        if v is None:
+            return "0-0"
+        if isinstance(v, str):
+            return v
+        if isinstance(v, dict) and "items" in v and v["items"]:
+            return v["items"][0].get("summary", "0-0")
+        return "0-0"
 
 
 class TeamRecord(BaseModel):

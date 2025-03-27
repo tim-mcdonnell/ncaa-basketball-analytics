@@ -1,126 +1,22 @@
-import pytest
-from unittest.mock import MagicMock, AsyncMock
+"""Configure pytest."""
 
-from src.data.api.async_client import AsyncClient
-from src.data.api.espn_client import AsyncESPNClient
-from src.data.api.rate_limiter import AdaptiveRateLimiter
+import sys
+import os
+import importlib.util
+from pathlib import Path
 
+# Add the project root directory to the Python path
+project_root = str(Path(__file__).parent.parent)
+sys.path.insert(0, project_root)
 
-@pytest.fixture
-def mock_async_client():
-    """Create a mock AsyncClient that doesn't make real requests."""
-    client = MagicMock(spec=AsyncClient)
-    client.__aenter__ = AsyncMock(return_value=client)
-    client.__aexit__ = AsyncMock(return_value=None)
-    client.get = AsyncMock()
-    client.post = AsyncMock()
-    return client
+# Load conftest_fixtures.py programmatically to avoid E402 issues
+fixtures_path = os.path.join(os.path.dirname(__file__), "conftest_fixtures.py")
+spec = importlib.util.spec_from_file_location("conftest_fixtures", fixtures_path)
+fixtures_module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(fixtures_module)
 
-
-@pytest.fixture
-def mock_espn_client():
-    """Create a mock AsyncESPNClient that doesn't make real requests."""
-    client = MagicMock(spec=AsyncESPNClient)
-    client.__aenter__ = AsyncMock(return_value=client)
-    client.__aexit__ = AsyncMock(return_value=None)
-    client.get = AsyncMock()
-    client.get_teams = AsyncMock()
-    client.get_team_details = AsyncMock()
-    client.get_games = AsyncMock()
-    client.get_team_players = AsyncMock()
-
-    # Set up rate limiter mock
-    client.rate_limiter = MagicMock(spec=AdaptiveRateLimiter)
-    client.rate_limiter.acquire = AsyncMock()
-    client.rate_limiter.release = AsyncMock()
-
-    return client
-
-
-@pytest.fixture
-def sample_teams_response():
-    """Sample response for teams endpoint."""
-    return {
-        "sports": [
-            {
-                "leagues": [
-                    {
-                        "teams": [
-                            {"team": {"id": "1", "name": "Team A", "abbreviation": "TA"}},
-                            {"team": {"id": "2", "name": "Team B", "abbreviation": "TB"}},
-                        ]
-                    }
-                ]
-            }
-        ]
-    }
-
-
-@pytest.fixture
-def sample_team_details_response():
-    """Sample response for team details endpoint."""
-    return {
-        "team": {
-            "id": "1",
-            "name": "Team A",
-            "abbreviation": "TA",
-            "location": "Location A",
-            "logo": "http://example.com/logo.png",
-            "record": {"items": [{"summary": "10-5"}]},
-        }
-    }
-
-
-@pytest.fixture
-def sample_games_response():
-    """Sample response for games endpoint."""
-    return {
-        "events": [
-            {
-                "id": "401",
-                "date": "2023-11-15T19:00Z",
-                "name": "Team A vs Team B",
-                "shortName": "TA vs TB",
-                "competitions": [
-                    {
-                        "competitors": [
-                            {"team": {"id": "1", "name": "Team A"}, "score": "75"},
-                            {"team": {"id": "2", "name": "Team B"}, "score": "70"},
-                        ],
-                        "status": {"type": {"completed": True}},
-                    }
-                ],
-            },
-            {
-                "id": "402",
-                "date": "2023-11-18T20:00Z",
-                "name": "Team C vs Team D",
-                "shortName": "TC vs TD",
-                "competitions": [
-                    {
-                        "competitors": [
-                            {"team": {"id": "3", "name": "Team C"}, "score": "80"},
-                            {"team": {"id": "4", "name": "Team D"}, "score": "82"},
-                        ],
-                        "status": {"type": {"completed": True}},
-                    }
-                ],
-            },
-        ]
-    }
-
-
-@pytest.fixture
-def sample_players_response():
-    """Sample response for team players endpoint."""
-    return {
-        "athletes": [
-            {"id": "101", "fullName": "Player One", "position": {"name": "Guard"}, "jersey": "10"},
-            {
-                "id": "102",
-                "fullName": "Player Two",
-                "position": {"name": "Forward"},
-                "jersey": "20",
-            },
-        ]
-    }
+# Import all fixtures into the global namespace
+for name in dir(fixtures_module):
+    if name.startswith("__"):
+        continue
+    globals()[name] = getattr(fixtures_module, name)

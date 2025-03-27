@@ -51,6 +51,13 @@ class ServiceUnavailableError(APIError):
         super().__init__(message, status_code=503)
 
 
+class ConnectionResetError(APIError):
+    """Raised when a connection is reset by the server or network issues."""
+
+    def __init__(self, message: str = "Connection reset by peer"):
+        super().__init__(message, status_code=None)
+
+
 class ParseError(APIError):
     """Raised when parsing API responses fails."""
 

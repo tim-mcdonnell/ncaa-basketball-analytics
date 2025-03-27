@@ -1,0 +1,55 @@
+{
+  "player": {
+    "id": "101",
+    "fullName": "Player One",
+    "team": {
+      "id": "59",
+      "name": "Michigan",
+      "abbreviation": "MICH"
+    },
+    "position": {"name": "Guard"},
+    "jersey": "1",
+    "statistics": {
+      "season": "2023-24",
+      "seasonType": "regular",
+      "splits": {
+        "categories": [
+          {
+            "name": "general",
+            "stats": [
+              {"name": "gamesPlayed", "value": 25},
+              {"name": "gamesStarted", "value": 22},
+              {"name": "minutesPerGame", "value": 32.5}
+            ]
+          },
+          {
+            "name": "scoring",
+            "stats": [
+              {"name": "points", "value": 385},
+              {"name": "ppg", "value": 15.4},
+              {"name": "fieldGoalPct", "value": 0.453},
+              {"name": "threePointPct", "value": 0.376},
+              {"name": "freeThrowPct", "value": 0.825}
+            ]
+          },
+          {
+            "name": "rebounds",
+            "stats": [
+              {"name": "rebounds", "value": 106},
+              {"name": "reboundsPerGame", "value": 4.2},
+              {"name": "offensiveRebounds", "value": 18},
+              {"name": "defensiveRebounds", "value": 88}
+            ]
+          },
+          {
+            "name": "assists",
+            "stats": [
+              {"name": "assists", "value": 92},
+              {"name": "assistsPerGame", "value": 3.7}
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

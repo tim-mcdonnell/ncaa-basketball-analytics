@@ -1,0 +1,46 @@
+{
+  "id": "401516163",
+  "date": "2023-11-12T23:30Z",
+  "name": "Michigan vs Ohio State",
+  "shortName": "MICH @ OSU",
+  "competitions": [
+    {
+      "id": "401516163",
+      "competitors": [
+        {
+          "id": "1",
+          "team": {
+            "id": "59",
+            "name": "Michigan",
+            "abbreviation": "MICH",
+            "logo": "https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/130.png"
+          },
+          "homeAway": "home"
+        },
+        {
+          "id": "2",
+          "team": {
+            "id": "194",
+            "name": "Ohio State",
+            "abbreviation": "OSU",
+            "logo": "https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/194.png"
+          },
+          "homeAway": "away"
+        }
+      ],
+      "venue": {
+        "fullName": "Value City Arena",
+        "address": {
+          "city": "Columbus",
+          "state": "OH"
+        }
+      },
+      "status": {
+        "type": {
+          "completed": true,
+          "description": "Final"
+        }
+      }
+    }
+  ]
+}

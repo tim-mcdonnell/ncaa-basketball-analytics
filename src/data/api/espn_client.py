@@ -1,3 +1,13 @@
+"""
+DEPRECATED: This file is deprecated and will be removed in a future release.
+
+Please use the refactored implementation:
+    from src.data.api.espn_client.client import AsyncESPNClient, ESPNClient
+
+See the ESPN_API_REFACTORING.md file for more details on the changes.
+"""
+
+import warnings
 from typing import Dict, Any, List, Optional
 import logging
 import os
@@ -20,6 +30,16 @@ from src.data.api.exceptions import (
 from src.data.api.metadata import get_last_modified, update_last_modified
 from src.config import APIConfig
 from src.data.api.endpoints.common import get_async_context
+from src.data.api.espn_client.client import AsyncESPNClient, ESPNClient
+
+warnings.warn(
+    "The espn_client.py file is deprecated and will be removed in a future release. "
+    "Please use 'from src.data.api.espn_client.client import AsyncESPNClient, ESPNClient' instead.",
+    DeprecationWarning,
+    stacklevel=2,
+)
+
+__all__ = ["AsyncESPNClient", "ESPNClient"]
 
 logger = logging.getLogger(__name__)
 
@@ -31,12 +51,14 @@ DEFAULT_HEADERS = {
 }
 
 
-class AsyncESPNClient(AsyncClient):
+# Keeping the rest of the file for now, but it will be removed in a future update
+# This class is deprecated and provided only for backward compatibility
+class DeprecatedAsyncESPNClient(AsyncClient):
     """
-    Asynchronous ESPN API client specifically for NCAA basketball data.
+    DEPRECATED: Asynchronous ESPN API client specifically for NCAA basketball data.
 
-    This client extends the base AsyncClient with ESPN-specific endpoints
-    and data processing for college basketball data.
+    This class is deprecated and will be removed in a future release.
+    Use src.data.api.espn_client.client.AsyncESPNClient instead.
     """
 
     BASE_URL = "https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball"
