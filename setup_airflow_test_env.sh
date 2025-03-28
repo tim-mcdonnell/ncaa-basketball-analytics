@@ -3,20 +3,21 @@
 # Create required directories
 mkdir -p ./data ./models ./predictions ./airflow/logs
 
-# Check if Docker and Docker Compose are installed
+# Check if Docker is installed
 if ! command -v docker &> /dev/null; then
     echo "Docker is not installed. Please install Docker first."
     exit 1
 fi
 
-if ! command -v docker-compose &> /dev/null; then
-    echo "Docker Compose is not installed. Please install Docker Compose first."
+# Check if Docker Compose is available (newer Docker versions use 'docker compose')
+if ! docker compose version &> /dev/null; then
+    echo "Docker Compose functionality is not available. Please ensure you have Docker Compose installed."
     exit 1
 fi
 
 # Start PostgreSQL service
 echo "Starting PostgreSQL service..."
-docker-compose up -d postgres
+docker compose up -d postgres
 
 # Wait for PostgreSQL to be ready
 echo "Waiting for PostgreSQL to be ready..."
@@ -24,11 +25,11 @@ sleep 10
 
 # Initialize Airflow database
 echo "Initializing Airflow database..."
-docker-compose run --rm webserver airflow db init
+docker compose run --rm webserver airflow db init
 
 # Create Airflow admin user
 echo "Creating Airflow admin user..."
-docker-compose run --rm webserver airflow users create \
+docker compose run --rm webserver airflow users create \
     --username admin \
     --password admin \
     --firstname Admin \
@@ -38,7 +39,7 @@ docker-compose run --rm webserver airflow users create \
 
 # Start Airflow services
 echo "Starting Airflow services..."
-docker-compose up -d
+docker compose up -d
 
 # Create DuckDB database file
 echo "Creating DuckDB database file..."

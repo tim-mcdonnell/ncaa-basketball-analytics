@@ -195,8 +195,113 @@ The Airflow UI will be available at http://localhost:8080. Log in with the usern
 
 For production deployment, follow these additional steps:
 
-1. Update `airflow/config/variables.json` with production paths and settings
-2. Set up a proper database backend (PostgreSQL recommended)
-3. Configure proper authentication and security
-4. Use a production-ready Airflow deployment method (Kubernetes, Celery, etc.)
-5. Set up monitoring and alerting
+1. Update Airflow variables with production settings:
+   ```bash
+   # Upload production_variables.json to your Airflow instance
+   # Then import them through the Airflow UI or use CLI:
+   airflow variables import airflow/config/production_variables.json
+   ```
+
+2. Configure proper database connections:
+   - Set up a PostgreSQL database for Airflow
+   - Configure DuckDB paths for absolute locations on the production server
+   - Ensure proper permissions on data directories
+
+3. Set up MLflow:
+   - Configure MLflow with a PostgreSQL backend for tracking
+   - Set up artifact storage with S3, GCS, or local filesystem
+   - Update `mlflow_tracking_uri` variable in Airflow
+
+4. Configure security:
+   - Use proper authentication for Airflow (LDAP, OAuth, etc.)
+   - Secure API credentials in environment variables or secrets manager
+   - Set up appropriate role-based access control
+
+5. Set up monitoring and alerting:
+   - Configure Slack and email alerts in Airflow
+   - Set up dashboards for monitoring DAG performance
+   - Implement proper logging and log rotation
+
+## MLflow Integration
+
+The NCAA Basketball Analytics project uses MLflow for model tracking and registry. Here's how to set it up:
+
+### Local Development
+
+1. Start the MLflow server using Docker Compose:
+   ```bash
+   docker compose up -d mlflow
+   ```
+
+2. Access the MLflow UI at http://localhost:5000
+
+3. Test the connection from Airflow:
+   ```python
+   # In an Airflow task or Python script
+   from src.models.mlflow.tracking import MLflowTracker
+
+   tracker = MLflowTracker(tracking_uri="sqlite:///mlflow.db")
+   experiment_id = tracker.create_experiment("my_experiment")
+   ```
+
+### Production Setup
+
+1. Set up a dedicated PostgreSQL database for MLflow:
+   ```sql
+   CREATE DATABASE mlflow;
+   CREATE USER mlflow WITH PASSWORD 'secure_password';
+   GRANT ALL PRIVILEGES ON DATABASE mlflow TO mlflow;
+   ```
+
+2. Configure storage for model artifacts (S3 example):
+   ```bash
+   export MLFLOW_S3_ENDPOINT_URL=https://your-s3-endpoint
+   export AWS_ACCESS_KEY_ID=your-access-key
+   export AWS_SECRET_ACCESS_KEY=your-secret-key
+   ```
+
+3. Start the MLflow tracking server:
+   ```bash
+   mlflow server \
+     --host 0.0.0.0 \
+     --port 5000 \
+     --backend-store-uri postgresql://mlflow:secure_password@mlflow-db/mlflow \
+     --default-artifact-root s3://your-bucket/mlflow-artifacts
+   ```
+
+4. Update Airflow variables:
+   ```json
+   {
+     "mlflow_tracking_uri": "postgresql://mlflow:secure_password@mlflow-db/mlflow"
+   }
+   ```
+
+## End-to-End Testing
+
+To verify the complete workflow integration:
+
+1. Set up the local testing environment:
+   ```bash
+   ./setup_airflow_test_env.sh
+   ```
+
+2. Configure connections in Airflow UI:
+   - DuckDB connection
+   - MLflow connection
+
+3. Run the integration tests:
+   ```bash
+   python -m pytest tests/airflow/test_pipeline_integration.py -v
+   ```
+
+4. Test the full pipeline execution:
+   - Enable and trigger the data_collection_dag
+   - Verify data is loaded in DuckDB
+   - Enable and trigger the feature_engineering_dag
+   - Verify features are calculated
+   - Enable and trigger the model_training_dag
+   - Verify model is trained and registered in MLflow
+   - Enable and trigger the prediction_dag
+   - Verify predictions are generated
+
+This completes the test verification process for the Airflow orchestration system.

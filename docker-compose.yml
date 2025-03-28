@@ -26,6 +26,8 @@ services:
       - AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=True
       - AIRFLOW__CORE__LOAD_EXAMPLES=False
       - AIRFLOW__API__AUTH_BACKENDS=airflow.api.auth.backend.basic_auth
+      - AIRFLOW__CORE__LOAD_DEFAULT_CONNECTIONS=False
+      - PYTHONPATH=/opt/airflow
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/plugins:/opt/airflow/plugins
@@ -39,6 +41,7 @@ services:
       - ./data:/opt/airflow/data
       - ./models:/opt/airflow/models
       - ./predictions:/opt/airflow/predictions
+      - ./config:/opt/airflow/project_config
     ports:
       - "8080:8080"
     command: webserver
@@ -58,6 +61,8 @@ services:
       - AIRFLOW__CORE__FERNET_KEY=''
       - AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=True
       - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      - AIRFLOW__CORE__LOAD_DEFAULT_CONNECTIONS=False
+      - PYTHONPATH=/opt/airflow
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/plugins:/opt/airflow/plugins
@@ -71,7 +76,26 @@ services:
       - ./data:/opt/airflow/data
       - ./models:/opt/airflow/models
       - ./predictions:/opt/airflow/predictions
+      - ./config:/opt/airflow/project_config
     command: scheduler
+
+  # MLflow tracking server for model tracking and registry
+  mlflow:
+    image: python:3.9
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./mlruns:/mlruns
+    command: >
+      bash -c "pip install mlflow psycopg2-binary &&
+               mlflow server --host 0.0.0.0 --backend-store-uri postgresql://airflow:airflow@postgres/airflow --default-artifact-root /mlruns"
+    depends_on:
+      - postgres
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:5000"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
 
 volumes:
   postgres-db-volume:
