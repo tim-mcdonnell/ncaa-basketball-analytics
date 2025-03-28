@@ -198,25 +198,12 @@ python -m pytest tests/path/to/test_file.py -v
 
 ### Multi-line Command Workaround
 
-⚠️ **Important**: AI agents cannot execute command-line commands containing newlines. For commands requiring multi-line input (like git commit messages), use this workaround:
+⚠️ **Important**: Your run_terminal_command tool cannot contain newline characters.  The tool call **WILL** fail. For commands requiring multi-line input (like git commit messages), use your edit_file tool to write your multi-line content to a file in tmp/ and then use that file in your command. For instance:
 
-```bash
-# INCORRECT - Will fail:
-git commit -m "Fix bug in feature calculation
+`git commit -F tmp/commit_msg.md`
+`gh issue create --title "some title" --body-file tmp/issue_body.md`
 
-- Updated algorithm to handle edge cases
-- Added additional validation"
-
-# CORRECT - Use temporary file:
-# 1. Create a temporary markdown file
-echo "Fix bug in feature calculation
-
-- Updated algorithm to handle edge cases
-- Added additional validation" > tmp/commit-message.md
-
-# 2. Reference the file in your command
-git commit -F tmp/commit-message.md
-```
+Remember to always call your delete_file tool to clean up the temp file once it's no longer needed.
 
 ## Project Documentation
 
