@@ -1,5 +1,4 @@
 import pytest
-from typing import Dict, Any, List
 
 from src.models.base import BaseModel, ModelConfig, ModelVersion
 
@@ -56,4 +55,4 @@ class TestModelSerialization:
         """Test that models can be saved and loaded."""
         # This is a skeleton test - actual implementation will create a concrete model
         # derived from BaseModel, save it, and load it
-        pytest.skip("Implementation pending concrete model class") 
+        pytest.skip("Implementation pending concrete model class")
