@@ -1,3 +1,7 @@
+"""
+Model training functionality.
+"""
+
 from .dataset import GameDataset, create_train_val_test_split, create_data_loaders
 from .metrics import (
     TrainingMetrics,
@@ -9,6 +13,7 @@ from .metrics import (
     compute_point_spread_accuracy,
 )
 from .trainer import ModelTrainer
+from src.models.training.train import train_model
 
 __all__ = [
     # Dataset
@@ -25,4 +30,5 @@ __all__ = [
     "compute_point_spread_accuracy",
     # Trainer
     "ModelTrainer",
+    "train_model",
 ]

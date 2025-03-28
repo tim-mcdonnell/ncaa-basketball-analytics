@@ -198,10 +198,43 @@ class CachedFeature(BaseFeature):
         Returns:
             String cache key
         """
-        # Convert data to a stable string representation
-        serialized = json.dumps(data, sort_keys=True, default=self._json_serializer)
-        # Generate hash of the serialized data
-        return hashlib.md5(serialized.encode()).hexdigest()
+        # Create a copy of the data with non-serializable objects replaced
+        serializable_data = {}
+
+        for key, value in data.items():
+            # Skip non-serializable objects like DataFrame
+            # For DataFrames, we'll use a hash based on contents
+            if str(type(value)).find("polars.dataframe") >= 0:
+                # For Polars DataFrame, use a hash of the shape and first row
+                try:
+                    # Use a simplified representation that's still deterministic for the same data
+                    serializable_data[key] = (
+                        f"DataFrame(shape={value.shape}, hash={hash(tuple(value.row(0)) if not value.is_empty() else 0)})"
+                    )
+                except Exception:
+                    # If there's an issue, use a simple fallback
+                    serializable_data[key] = f"DataFrame(shape={value.shape})"
+            elif isinstance(value, (int, float, str, bool, type(None))):
+                # Basic types can be serialized as-is
+                serializable_data[key] = value
+            else:
+                # For complex objects, use their string representation
+                try:
+                    serializable_data[key] = str(value)
+                except Exception:
+                    serializable_data[key] = f"<Object of type {type(value)}>"
+
+        try:
+            # Create a JSON string from the data
+            serialized = json.dumps(
+                serializable_data, sort_keys=True, default=self._json_serializer
+            )
+            # Hash the string to create a cache key
+            cache_key = hashlib.md5(serialized.encode()).hexdigest()
+            return cache_key
+        except Exception:
+            # If there's an error, use a fallback
+            return f"{self.name}_{self.version}_{id(data)}"
 
     def _json_serializer(self, obj: Any) -> str:
         """
@@ -216,5 +249,12 @@ class CachedFeature(BaseFeature):
         if isinstance(obj, (datetime.date, datetime.datetime)):
             return obj.isoformat()
 
-        # Add other non-serializable types as needed
-        raise TypeError(f"Type {type(obj)} not serializable")
+        # Handle Polars DataFrames (should not happen due to preprocessing in _generate_cache_key)
+        if str(type(obj)).find("polars.dataframe") >= 0:
+            return f"DataFrame(shape={obj.shape})"
+
+        # Use string representation for any other non-serializable types
+        try:
+            return str(obj)
+        except Exception:
+            return f"<Object of type {type(obj)}>"
