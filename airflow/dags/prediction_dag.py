@@ -9,6 +9,7 @@ from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.sensors.data_sensors import DuckDBTableSensor
 from airflow.utils.dates import days_ago
+from airflow.models import Variable
 
 # Import prediction functions from project
 # These would be implemented in the src/predictions directory
@@ -28,12 +29,15 @@ default_args = {
     "start_date": days_ago(1),
 }
 
+# Load configuration from Airflow variables
+database = Variable.get("ncaa_basketball_db_path")
+data_dir = Variable.get("ncaa_basketball_data_dir")
+predictions_dir = Variable.get("ncaa_basketball_predictions_dir")
+mlflow_tracking_uri = Variable.get("mlflow_tracking_uri")
+forecast_days = int(Variable.get("prediction_forecast_days"))
+
 # Database connection settings
 conn_id = "duckdb_default"
-database = "/path/to/ncaa_basketball.duckdb"  # Update path as needed
-
-# MLflow tracking URI
-MLFLOW_TRACKING_URI = "http://localhost:5000"
 
 # Define the DAG - run daily for predictions
 dag = DAG(
@@ -75,7 +79,7 @@ with dag:
         op_kwargs={
             "conn_id": conn_id,
             "database": database,
-            "days_ahead": 7,  # Fetch games for the next 7 days
+            "days_ahead": forecast_days,  # Fetch games for the configured forecast days
             "execution_date": "{{ execution_date.strftime('%Y-%m-%d') }}",
         },
         retries=3,
@@ -88,7 +92,7 @@ with dag:
         op_kwargs={
             "conn_id": conn_id,
             "database": database,
-            "output_path": "/path/to/prediction_data/",  # Update path as needed
+            "output_path": f"{data_dir}/prediction_data/",
             "execution_date": "{{ execution_date.strftime('%Y-%m-%d') }}",
         },
         retries=2,
@@ -99,10 +103,10 @@ with dag:
         task_id="generate_predictions",
         python_callable=generate_predictions,
         op_kwargs={
-            "input_path": "/path/to/prediction_data/",  # Update path as needed
-            "output_path": "/path/to/predictions/",  # Update path as needed
+            "input_path": f"{data_dir}/prediction_data/",
+            "output_path": f"{predictions_dir}/",
             "model_stage": "production",  # Use production model from registry
-            "tracking_uri": MLFLOW_TRACKING_URI,
+            "tracking_uri": mlflow_tracking_uri,
             "execution_date": "{{ execution_date.strftime('%Y-%m-%d') }}",
         },
         retries=2,
@@ -115,7 +119,7 @@ with dag:
         op_kwargs={
             "conn_id": conn_id,
             "database": database,
-            "predictions_path": "/path/to/predictions/",  # Update path as needed
+            "predictions_path": f"{predictions_dir}/",
             "execution_date": "{{ execution_date.strftime('%Y-%m-%d') }}",
         },
         retries=2,

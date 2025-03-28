@@ -260,3 +260,108 @@ Planned enhancements for the ESPN API integration include:
 - Enhanced statistics collection
 - Historical data archiving
 - Custom data transformations for analysis
+
+## ESPNApiClient Adapter
+
+The `ESPNApiClient` adapter provides a compatibility layer between the existing `ESPNClient` implementation and the interface expected by Airflow operators and prediction components.
+
+### Usage
+
+```python
+from src.data.api.espn_client import ESPNApiClient
+
+# Initialize the client
+client = ESPNApiClient()
+
+# Get teams data
+teams = client.get_teams(season="2022-23")
+
+# Get games data
+games = client.get_games(
+    start_date="2023-01-01",
+    end_date="2023-01-31",
+    team_id="MICH",
+    limit=100
+)
+
+# Get players data for a specific team
+players = client.get_players(team_id="MICH")
+
+# Get player statistics
+player_stats = client.get_player_stats(player_id="4430185")
+```
+
+### API Reference
+
+#### ESPNApiClient
+
+```python
+class ESPNApiClient:
+    def __init__(self, config_path: Optional[str] = None):
+        """
+        Initialize ESPN API client adapter.
+
+        Args:
+            config_path: Optional path to configuration file
+        """
+
+    def get_teams(self, season: Optional[str] = None) -> List[Dict[str, Any]]:
+        """
+        Get teams data from ESPN API.
+
+        Args:
+            season: Basketball season (e.g., '2022-23')
+
+        Returns:
+            List of team dictionaries
+        """
+
+    def get_games(
+        self,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+        team_id: Optional[str] = None,
+        limit: int = 100,
+    ) -> List[Dict[str, Any]]:
+        """
+        Get games data from ESPN API.
+
+        Args:
+            start_date: Start date for games (YYYY-MM-DD)
+            end_date: End date for games (YYYY-MM-DD)
+            team_id: Team ID to filter by
+            limit: Maximum number of games to return
+
+        Returns:
+            List of game dictionaries
+        """
+
+    def get_players(self, team_id: Optional[str] = None) -> List[Dict[str, Any]]:
+        """
+        Get players data from ESPN API.
+
+        Args:
+            team_id: Optional team ID to filter by
+
+        Returns:
+            List of player dictionaries
+        """
+
+    def get_player_stats(
+        self,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+        player_id: Optional[str] = None,
+    ) -> List[Dict[str, Any]]:
+        """
+        Get player statistics from ESPN API.
+
+        Args:
+            start_date: Start date for stats (YYYY-MM-DD)
+            end_date: End date for stats (YYYY-MM-DD)
+            player_id: Optional player ID to filter by
+
+        Returns:
+            List of player statistics dictionaries
+        """
+```

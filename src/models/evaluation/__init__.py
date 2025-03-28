@@ -1,3 +1,7 @@
+"""
+Model evaluation functionality.
+"""
+
 from .metrics import (
     calculate_accuracy,
     calculate_point_spread_accuracy,
@@ -17,6 +21,7 @@ from .visualization import (
     plot_confusion_matrix,
     save_evaluation_plots,
 )
+from src.models.evaluation.evaluate import evaluate_model
 
 __all__ = [
     # Metrics
@@ -35,4 +40,5 @@ __all__ = [
     "plot_calibration_curve",
     "plot_confusion_matrix",
     "save_evaluation_plots",
+    "evaluate_model",
 ]

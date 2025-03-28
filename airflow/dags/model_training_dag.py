@@ -1,6 +1,6 @@
 """
-DAG for training NCAA basketball prediction models.
-This DAG prepares training data, trains models, evaluates performance, and registers models.
+DAG for training the NCAA basketball prediction model.
+This DAG prepares training data, trains the model, evaluates its performance, and registers it.
 """
 
 from datetime import timedelta
@@ -9,9 +9,9 @@ from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.sensors.data_sensors import DuckDBTableSensor
 from airflow.utils.dates import days_ago
+from airflow.models import Variable
 
 # Import model training functions from project
-# These would be implemented in the src/models directory
 from src.models.data_preparation import prepare_training_data
 from src.models.training import train_model
 from src.models.evaluation import evaluate_model
@@ -28,21 +28,25 @@ default_args = {
     "start_date": days_ago(1),
 }
 
+# Load configuration from Airflow variables
+database = Variable.get("ncaa_basketball_db_path")
+data_dir = Variable.get("ncaa_basketball_data_dir")
+models_dir = Variable.get("ncaa_basketball_models_dir")
+mlflow_tracking_uri = Variable.get("mlflow_tracking_uri")
+lookback_days = int(Variable.get("model_training_lookback_days"))
+min_accuracy = float(Variable.get("min_accuracy_threshold"))
+
 # Database connection settings
 conn_id = "duckdb_default"
-database = "/path/to/ncaa_basketball.duckdb"  # Update path as needed
 
-# MLflow tracking URI
-MLFLOW_TRACKING_URI = "http://localhost:5000"
-
-# Define the DAG - run weekly since model training is computationally expensive
+# Define the DAG - run weekly for model training
 dag = DAG(
     dag_id="model_training_dag",
     default_args=default_args,
-    description="Train NCAA basketball prediction models",
-    schedule_interval="0 2 * * 0",  # Run weekly on Sunday at 2 AM
+    description="Train the NCAA basketball prediction model",
+    schedule_interval="0 2 * * 0",  # Run weekly at 2 AM on Sunday
     catchup=False,
-    tags=["ncaa", "basketball", "model_training"],
+    tags=["ncaa", "basketball", "model", "training"],
 )
 
 with dag:
@@ -52,7 +56,6 @@ with dag:
         conn_id=conn_id,
         database=database,
         table="team_features",
-        min_rows=300,  # Ensure we have features for a reasonable number of teams
         poke_interval=300,  # Check every 5 minutes
         timeout=60 * 60 * 2,  # Timeout after 2 hours
         mode="reschedule",
@@ -64,7 +67,6 @@ with dag:
         conn_id=conn_id,
         database=database,
         table="game_features",
-        min_rows=1000,  # Ensure we have features for a reasonable number of games
         poke_interval=300,  # Check every 5 minutes
         timeout=60 * 60 * 2,  # Timeout after 2 hours
         mode="reschedule",
@@ -77,11 +79,11 @@ with dag:
         op_kwargs={
             "conn_id": conn_id,
             "database": database,
-            "lookback_days": 365,  # Use data from the last year for training
+            "output_path": f"{data_dir}/training_data/",
+            "lookback_days": lookback_days,  # Use data from the past year
+            "test_split": 0.2,  # Use 20% of data for validation
             "execution_date": "{{ execution_date.strftime('%Y-%m-%d') }}",
-            "output_path": "/path/to/training_data/",  # Update path as needed
         },
-        retries=2,
     )
 
     # Task to train the model
@@ -89,13 +91,12 @@ with dag:
         task_id="train_model",
         python_callable=train_model,
         op_kwargs={
-            "input_path": "/path/to/training_data/",  # Update path as needed
-            "output_path": "/path/to/trained_models/",  # Update path as needed
-            "model_type": "gradient_boosting",
-            "tracking_uri": MLFLOW_TRACKING_URI,
+            "input_path": f"{data_dir}/training_data/",
+            "output_path": f"{models_dir}/{{ execution_date.strftime('%Y-%m-%d') }}/",
+            "model_type": "gradient_boosting",  # Use gradient boosting model
+            "tracking_uri": mlflow_tracking_uri,
             "execution_date": "{{ execution_date.strftime('%Y-%m-%d') }}",
         },
-        retries=2,
     )
 
     # Task to evaluate the model
@@ -103,28 +104,32 @@ with dag:
         task_id="evaluate_model",
         python_callable=evaluate_model,
         op_kwargs={
-            "model_path": "/path/to/trained_models/",  # Update path as needed
-            "test_data_path": "/path/to/training_data/test_data.csv",  # Update path as needed
-            "tracking_uri": MLFLOW_TRACKING_URI,
+            "model_path": f"{models_dir}/{{ execution_date.strftime('%Y-%m-%d') }}/model.pt",
+            "test_data_path": f"{data_dir}/training_data/test_data.parquet",
+            "output_path": f"{models_dir}/{{ execution_date.strftime('%Y-%m-%d') }}/evaluation/",
+            "tracking_uri": mlflow_tracking_uri,
+            "run_id": "{{ task_instance.xcom_pull(task_ids='train_model')['run_id'] }}",
+            "min_accuracy_threshold": min_accuracy,  # Minimum required accuracy
             "execution_date": "{{ execution_date.strftime('%Y-%m-%d') }}",
         },
-        retries=1,
     )
 
-    # Task to register the model in the registry
+    # Task to register the model
     register_model_task = PythonOperator(
         task_id="register_model",
         python_callable=register_model,
         op_kwargs={
-            "model_path": "/path/to/trained_models/",  # Update path as needed
+            "model_path": f"{models_dir}/{{ execution_date.strftime('%Y-%m-%d') }}/model.pt",
+            "config_path": f"{models_dir}/{{ execution_date.strftime('%Y-%m-%d') }}/model_config.json",
+            "evaluation_path": f"{models_dir}/{{ execution_date.strftime('%Y-%m-%d') }}/evaluation/metrics.json",
+            "tracking_uri": mlflow_tracking_uri,
             "model_name": "ncaa_basketball_prediction",
-            "tracking_uri": MLFLOW_TRACKING_URI,
-            "min_accuracy": 0.70,  # Only register models with at least 70% accuracy
+            "stage": "production",  # Register as production if performance is good
+            "run_id": "{{ task_instance.xcom_pull(task_ids='train_model')['run_id'] }}",
             "execution_date": "{{ execution_date.strftime('%Y-%m-%d') }}",
         },
-        retries=1,
     )
 
-    # Define task dependencies - linear flow
+    # Define task dependencies
     [team_features_available, game_features_available] >> prepare_training_data_task
     prepare_training_data_task >> train_model_task >> evaluate_model_task >> register_model_task

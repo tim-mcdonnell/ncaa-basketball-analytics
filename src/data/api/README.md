@@ -175,3 +175,33 @@ python -m pytest tests/data/api
 ## Extended Documentation
 
 For more detailed documentation, please refer to the [API Documentation](../../../docs/api-documentation.md) in the docs directory.
+
+## ESPNApiClient Adapter
+
+The `ESPNApiClient` adapter provides a compatibility layer between the existing `ESPNClient` implementation and the interface expected by Airflow operators and prediction components.
+
+### Usage
+
+```python
+from src.data.api.espn_client import ESPNApiClient
+
+# Initialize the client
+client = ESPNApiClient()
+
+# Get teams data
+teams = client.get_teams(season="2022-23")
+
+# Get games data
+games = client.get_games(
+    start_date="2023-01-01",
+    end_date="2023-01-31"
+)
+
+# Get players data for a specific team
+players = client.get_players(team_id="MICH")
+
+# Get player statistics
+player_stats = client.get_player_stats(player_id="4430185")
+```
+
+The adapter simplifies the API for common use cases and is particularly designed to work with the Airflow operators in the project.

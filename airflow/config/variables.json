@@ -1,16 +1,16 @@
 {
-    "ncaa_basketball_db_path": "/path/to/ncaa_basketball.duckdb",
+    "ncaa_basketball_db_path": "./data/ncaa_basketball.duckdb",
     "ncaa_basketball_current_season": "2023-24",
-    "ncaa_basketball_data_dir": "/path/to/data",
-    "ncaa_basketball_models_dir": "/path/to/models",
-    "ncaa_basketball_predictions_dir": "/path/to/predictions",
-    "mlflow_tracking_uri": "http://localhost:5000",
+    "ncaa_basketball_data_dir": "./data",
+    "ncaa_basketball_models_dir": "./models",
+    "ncaa_basketball_predictions_dir": "./predictions",
+    "mlflow_tracking_uri": "sqlite:///mlflow.db",
     "data_collection_lookback_days": 7,
     "feature_engineering_lookback_days": 30,
     "model_training_lookback_days": 365,
     "prediction_forecast_days": 7,
     "min_accuracy_threshold": 0.70,
-    "enable_slack_alerts": true,
-    "enable_email_alerts": true,
+    "enable_slack_alerts": false,
+    "enable_email_alerts": false,
     "admin_email": "admin@example.com"
 }

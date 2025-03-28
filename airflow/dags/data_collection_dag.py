@@ -1,6 +1,6 @@
 """
-DAG for collecting NCAA basketball data from ESPN API.
-This DAG fetches team, game, player, and player stats data.
+DAG for collecting NCAA basketball data from the ESPN API.
+This DAG fetches teams, games, players, and their statistics.
 """
 
 from datetime import timedelta
@@ -14,6 +14,7 @@ from airflow.operators.espn_operators import (
 )
 from airflow.sensors.data_sensors import DuckDBTableSensor
 from airflow.utils.dates import days_ago
+from airflow.models import Variable
 
 
 default_args = {
@@ -26,10 +27,13 @@ default_args = {
     "start_date": days_ago(1),
 }
 
+# Load configuration from Airflow variables
+database = Variable.get("ncaa_basketball_db_path")
+current_season = Variable.get("ncaa_basketball_current_season")
+lookback_days = int(Variable.get("data_collection_lookback_days"))
+
 # Database connection settings
 conn_id = "duckdb_default"
-database = "/path/to/ncaa_basketball.duckdb"  # Update path as needed
-current_season = "2023-24"  # Update as needed
 
 # Define the DAG
 dag = DAG(
@@ -48,7 +52,7 @@ with dag:
         conn_id=conn_id,
         database=database,
         season=current_season,
-        retries=5,  # Override default retries for this critical task
+        include_stats=True,
     )
 
     # Sensor to confirm teams data is available
@@ -68,10 +72,9 @@ with dag:
         task_id="fetch_games",
         conn_id=conn_id,
         database=database,
-        start_date="{{ execution_date.strftime('%Y-%m-%d') }}",
-        end_date="{{ (execution_date + macros.timedelta(days=7)).strftime('%Y-%m-%d') }}",
-        incremental=True,
-        retries=5,  # Override default retries for this critical task
+        lookback_days=lookback_days,  # Fetch data for the past week
+        season=current_season,
+        incremental_load=True,  # Only fetch new games
     )
 
     # Task to fetch player data
@@ -80,7 +83,7 @@ with dag:
         conn_id=conn_id,
         database=database,
         season=current_season,
-        retries=5,  # Override default retries for this critical task
+        update_existing=True,  # Update player info if already exists
     )
 
     # Sensor to confirm players data is available
@@ -95,14 +98,13 @@ with dag:
         mode="reschedule",  # Free up the worker slot while waiting
     )
 
-    # Task to fetch player stats for recent and upcoming games
+    # Task to fetch player statistics
     fetch_player_stats = FetchPlayerStatsOperator(
         task_id="fetch_player_stats",
         conn_id=conn_id,
         database=database,
-        start_date="{{ (execution_date - macros.timedelta(days=7)).strftime('%Y-%m-%d') }}",
-        end_date="{{ execution_date.strftime('%Y-%m-%d') }}",
-        retries=5,  # Override default retries for this critical task
+        lookback_days=lookback_days,  # Fetch stats for the past week
+        season=current_season,
     )
 
     # Define task dependencies
